@@ -92,4 +92,45 @@ function verifyCsrfToken($token) {
     }
     return true;
 }
+
+/**
+ * Uploads a file with basic validation.
+ * @param array $file The $_FILES['name'] array.
+ * @param string $targetDir Relative path to upload directory.
+ * @return array ['success' => bool, 'message' => string, 'path' => string|null]
+ */
+function uploadFile($file, $targetDir = '../uploads/reports/') {
+    // Ensure directory exists
+    if (!is_dir($targetDir)) {
+        mkdir($targetDir, 0755, true);
+    }
+
+    $fileName = basename($file["name"]);
+    $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+    // Validate File Type
+    $allowedTypes = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'];
+    if (!in_array($fileType, $allowedTypes)) {
+        return ['success' => false, 'message' => "Only JPG, PNG, PDF, DOC files are allowed."];
+    }
+
+    // Validate File Size (Max 5MB)
+    if ($file["size"] > 5000000) {
+        return ['success' => false, 'message' => "File is too large. Max 5MB."];
+    }
+
+    // Generate Unique Name
+    $newFileName = uniqid('report_', true) . '.' . $fileType;
+    $targetFile = $targetDir . $newFileName;
+
+    if (move_uploaded_file($file["tmp_name"], $targetFile)) {
+        // Return path relative to web root if possible, or just the relative path stored
+        // Storing "uploads/reports/filename.ext" is usually best.
+        // Since function call might use '../uploads', we need to clean it for DB if needed.
+        // Let's assume we store the path provided + filename.
+        return ['success' => true, 'message' => "File uploaded.", 'path' => $targetFile];
+    } else {
+        return ['success' => false, 'message' => "Error moving file."];
+    }
+}
 ?>

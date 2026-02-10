@@ -82,6 +82,19 @@ CREATE TABLE IF NOT EXISTS prescriptions (
     FOREIGN KEY (doctor_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Patient Documents/Reports Table
+CREATE TABLE IF NOT EXISTS patient_reports (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    file_path VARCHAR(255) NOT NULL, -- Relative path (e.g., uploads/reports/file.pdf)
+    description TEXT,
+    uploaded_by INT NOT NULL, -- User ID of uploader (can be patient or doctor)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Seed Initial Super Admin User (Password: admin123)
 INSERT INTO users (name, email, phone, password, role) VALUES
 ('Super Admin', 'superadmin@clinic.com', '+15550000000', '$2y$10$Odv5dPTeqhFv9ZD2O.NH8.JLvJqwDOTzAmN.PLN3cM22N8IDeK1B2', 'superadmin');

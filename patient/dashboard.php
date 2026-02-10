@@ -75,6 +75,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         }
     }
 }
+}
+
+// Handle File Upload
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'upload_report') {
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!verifyCsrfToken($csrf_token)) {
+        setFlashMessage('danger', "Invalid CSRF token.", 'danger');
+    } else {
+        $title = trim($_POST['title']);
+        $description = trim($_POST['description']);
+
+        if (isset($_FILES['report_file']) && $_FILES['report_file']['error'] == 0) {
+            $uploadResult = uploadFile($_FILES['report_file'], '../uploads/reports/');
+
+            if ($uploadResult['success']) {
+                try {
+                    $stmt = $pdo->prepare("INSERT INTO patient_reports (patient_id, title, file_path, description, uploaded_by) VALUES (?, ?, ?, ?, ?)");
+                    // Store relative path for web access: uploads/reports/filename.ext
+                    // uploadFile returns relative to where it was called (e.g. ../uploads...), we want it relative to root for links
+                    // We can strip the leading '../'
+                    $webPath = str_replace('../', '', $uploadResult['path']);
+
+                    $stmt->execute([$_SESSION['user_id'], $title, $webPath, $description, $_SESSION['user_id']]);
+                    setFlashMessage('success', "Report uploaded successfully!", 'success');
+                    redirect('dashboard.php');
+                } catch (PDOException $e) {
+                    setFlashMessage('danger', "Database error: " . $e->getMessage(), 'danger');
+                }
+            } else {
+                setFlashMessage('danger', $uploadResult['message'], 'danger');
+            }
+        } else {
+            setFlashMessage('danger', "Please select a valid file.", 'danger');
+        }
+    }
+}
 
 require_once '../includes/header.php';
 ?>
@@ -99,7 +135,7 @@ require_once '../includes/header.php';
     <div class="row">
         <!-- Booking Form -->
         <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100">
+            <div class="card shadow-sm h-100 mb-3">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0"><i class="fas fa-calendar-plus"></i> Book Appointment</h5>
                 </div>
@@ -136,11 +172,40 @@ require_once '../includes/header.php';
                     </form>
                 </div>
             </div>
+
+            <!-- Upload Report Form -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-upload"></i> Upload Report</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="<?php echo generateCsrfToken(); ?>">
+                        <input type="hidden" name="action" value="upload_report">
+
+                        <div class="mb-3">
+                            <label class="form-label">Report Title</label>
+                            <input type="text" name="title" class="form-control" required placeholder="e.g. Blood Test">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">File (PDF/JPG/PNG)</label>
+                            <input type="file" name="report_file" class="form-control" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description (Optional)</label>
+                            <textarea name="description" class="form-control" rows="2"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-secondary w-100">Upload</button>
+                    </form>
+                </div>
+            </div>
         </div>
 
-        <!-- Appointments List -->
+        <!-- Right Column -->
         <div class="col-md-8 mb-4">
-            <div class="card shadow-sm h-100">
+
+            <!-- Appointments -->
+            <div class="card shadow-sm mb-4">
                 <div class="card-header bg-info text-white">
                     <h5 class="mb-0"><i class="fas fa-history"></i> My Appointments & Prescriptions</h5>
                 </div>
@@ -210,6 +275,48 @@ require_once '../includes/header.php';
                     </div>
                 </div>
             </div>
+
+            <!-- My Reports -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-medical-alt"></i> My Medical Reports</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $stmt = $pdo->prepare("SELECT * FROM patient_reports WHERE patient_id = ? ORDER BY created_at DESC");
+                                $stmt->execute([$_SESSION['user_id']]);
+                                $reports = $stmt->fetchAll();
+
+                                if (count($reports) > 0) {
+                                    foreach ($reports as $report) {
+                                        echo "<tr>";
+                                        echo "<td>" . date('M d, Y', strtotime($report['created_at'])) . "</td>";
+                                        echo "<td>" . htmlspecialchars($report['title']) . "</td>";
+                                        echo "<td><small>" . htmlspecialchars($report['description']) . "</small></td>";
+                                        echo "<td><a href='/" . htmlspecialchars($report['file_path']) . "' class='btn btn-sm btn-primary' target='_blank'><i class='fas fa-download'></i> Download</a></td>";
+                                        echo "</tr>";
+                                    }
+                                } else {
+                                    echo "<tr><td colspan='4' class='text-center text-muted'>No reports uploaded yet.</td></tr>";
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

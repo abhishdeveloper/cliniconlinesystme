@@ -152,6 +152,42 @@ require_once '../includes/header.php';
                 <div class="col-md-4"><strong>Email:</strong> <?php echo htmlspecialchars($appointment['patient_email']); ?></div>
                 <div class="col-md-4"><strong>Date:</strong> <?php echo date('M d, Y', strtotime($appointment['appointment_date'])); ?></div>
             </div>
+
+            <!-- View Reports Button -->
+             <div class="row mt-3">
+                 <div class="col-md-12">
+                     <button type="button" class="btn btn-outline-info" data-bs-toggle="collapse" data-bs-target="#patientReports">
+                         <i class="fas fa-file-medical"></i> View Patient Reports
+                     </button>
+
+                     <div class="collapse mt-3" id="patientReports">
+                         <div class="card card-body bg-light">
+                             <h6>Uploaded Medical Reports</h6>
+                             <ul class="list-group">
+                                 <?php
+                                 $stmt = $pdo->prepare("SELECT * FROM patient_reports WHERE patient_id = ? ORDER BY created_at DESC");
+                                 $stmt->execute([$appointment['patient_id']]);
+                                 $reports = $stmt->fetchAll();
+
+                                 if (count($reports) > 0) {
+                                     foreach ($reports as $report) {
+                                         echo "<li class='list-group-item d-flex justify-content-between align-items-center'>
+                                                <div>
+                                                    <strong>" . htmlspecialchars($report['title']) . "</strong>
+                                                    <small class='text-muted d-block'>" . htmlspecialchars($report['description']) . " (" . date('M d, Y', strtotime($report['created_at'])) . ")</small>
+                                                </div>
+                                                <a href='/" . htmlspecialchars($report['file_path']) . "' class='btn btn-sm btn-primary' target='_blank'>Download</a>
+                                              </li>";
+                                     }
+                                 } else {
+                                     echo "<li class='list-group-item'>No reports found.</li>";
+                                 }
+                                 ?>
+                             </ul>
+                         </div>
+                     </div>
+                 </div>
+             </div>
         </div>
     </div>
 
