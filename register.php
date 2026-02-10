@@ -1,6 +1,7 @@
 <?php
 require_once 'config/database.php';
 require_once 'includes/functions.php';
+require_once 'includes/notifications.php'; // Include Notification System
 
 // Redirect if already logged in
 if (isLoggedIn()) {
@@ -41,6 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
                 $stmt = $pdo->prepare("INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, 'patient')");
                 if ($stmt->execute([$name, $email, $phone, $hashed_password])) {
+                    // Send Welcome Notification
+                    $msg = "Welcome to our Clinic, $name! Your account has been created.";
+                    sendEmail($email, "Welcome to Ayurveda Clinic", $msg);
+                    sendSMS($phone, $msg);
+
                     setFlashMessage('success', "Registration successful! Please login.", 'success');
                     redirect('login.php');
                 } else {

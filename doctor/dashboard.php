@@ -1,6 +1,7 @@
 <?php
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/notifications.php'; // Include Notification System
 
 // Check if doctor
 if (!isLoggedIn('doctor')) {
@@ -22,6 +23,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         try {
             $stmt = $pdo->prepare("UPDATE appointments SET status = ?, notes = ? WHERE id = ? AND doctor_id = ?");
             $stmt->execute([$new_status, $notes, $appt_id, $_SESSION['user_id']]);
+
+            // Notify Patient of Status Change
+            $pat_stmt = $pdo->prepare("SELECT u.email, u.phone, u.name, a.appointment_date FROM appointments a JOIN users u ON a.patient_id = u.id WHERE a.id = ?");
+            $pat_stmt->execute([$appt_id]);
+            $pat_data = $pat_stmt->fetch();
+
+            if ($pat_data) {
+                $appt_time = date('F j, Y g:i A', strtotime($pat_data['appointment_date']));
+                $msg = "Hello {$pat_data['name']}, your appointment on $appt_time has been marked as " . strtoupper($new_status) . ".";
+
+                $phone = $pat_data['phone'] ?? '+15550000000';
+                sendSMS($phone, $msg);
+                sendEmail($pat_data['email'], "Appointment Update: $new_status", $msg);
+            }
+
             setFlashMessage('success', "Appointment updated successfully!", 'success');
             redirect('dashboard.php');
         } catch (PDOException $e) {

@@ -298,7 +298,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
         const box = document.getElementById('captions-box');
         const div = document.createElement('div');
         div.className = 'caption-line';
-        div.innerHTML = `<span class="caption-user">${user}:</span> ${text}`;
+
+        // Securely create elements to prevent XSS
+        const userSpan = document.createElement('span');
+        userSpan.className = 'caption-user';
+        userSpan.textContent = user + ': ';
+
+        const textNode = document.createTextNode(text);
+
+        div.appendChild(userSpan);
+        div.appendChild(textNode);
+
         box.appendChild(div);
         box.scrollTop = box.scrollHeight;
     }

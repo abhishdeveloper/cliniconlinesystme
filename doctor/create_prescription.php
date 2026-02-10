@@ -1,6 +1,7 @@
 <?php
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/notifications.php'; // Include Notification System
 
 // Check if doctor
 if (!isLoggedIn('doctor')) {
@@ -110,6 +111,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 setFlashMessage('success', "Prescription generated successfully!", 'success');
             }
+
+            // Notify Patient of Prescription
+            $msg = "Hello {$appointment['patient_name']}, your prescription is ready. Please log in to view it.";
+            sendEmail($appointment['patient_email'], "Prescription Ready", $msg);
+            sendSMS($appointment['patient_phone'], $msg);
 
             $pdo->commit();
             redirect('dashboard.php');

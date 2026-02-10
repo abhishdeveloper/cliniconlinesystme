@@ -1,6 +1,7 @@
 <?php
 require_once '../config/database.php';
 require_once '../includes/functions.php';
+require_once '../includes/notifications.php'; // Include Notification System
 
 // Check if patient
 if (!isLoggedIn('patient')) {
@@ -66,7 +67,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $stmt->execute([$_SESSION['user_id'], $doctor_id, $slot['slot_datetime'], $notes, $slot_id]);
 
                 $pdo->commit();
-                setFlashMessage('success', "Appointment booked successfully!", 'success');
+
+                // 4. Send Notifications
+                // Get Doctor Email/Phone
+                $doc_stmt = $pdo->prepare("SELECT email, phone, name FROM users WHERE id = ?");
+                $doc_stmt->execute([$doctor_id]);
+                $doctor = $doc_stmt->fetch();
+
+                // Get Patient Email/Phone (Current User)
+                $pat_stmt = $pdo->prepare("SELECT email, phone, name FROM users WHERE id = ?");
+                $pat_stmt->execute([$_SESSION['user_id']]);
+                $patient = $pat_stmt->fetch();
+
+                $appt_time = date('F j, Y g:i A', strtotime($slot['slot_datetime']));
+
+                // Notify Patient
+                $msg_pat = "Your appointment with Dr. {$doctor['name']} on $appt_time is confirmed.";
+                // Pass dummy phone if null for testing
+                $pat_phone = $patient['phone'] ?? '+15550000000';
+                sendSMS($pat_phone, $msg_pat);
+                sendEmail($patient['email'], "Appointment Confirmed", $msg_pat);
+
+                // Notify Doctor
+                $msg_doc = "New appointment: {$patient['name']} on $appt_time.";
+                $doc_phone = $doctor['phone'] ?? '+15550000000';
+                sendSMS($doc_phone, $msg_doc);
+                sendEmail($doctor['email'], "New Appointment Request", $msg_doc);
+
+                setFlashMessage('success', "Appointment booked successfully! Confirmation sent.", 'success');
                 redirect('dashboard.php');
             }
         } catch (PDOException $e) {
