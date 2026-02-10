@@ -24,6 +24,28 @@ require_once __DIR__ . '/functions.php';
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="/assets/css/style.css" rel="stylesheet">
+    <style>
+        /* Google Translate Styling */
+        .goog-te-gadget-simple {
+            background-color: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+        .goog-te-gadget-simple .goog-te-menu-value span {
+            color: white !important;
+            font-weight: bold;
+        }
+        .goog-te-gadget-simple .goog-te-menu-value span:hover {
+            text-decoration: none !important;
+        }
+        .goog-te-gadget-icon {
+            display: none !important;
+        }
+        #google_translate_element {
+            margin-right: 15px;
+            margin-top: 8px;
+        }
+    </style>
 </head>
 <body>
 
@@ -34,7 +56,11 @@ require_once __DIR__ . '/functions.php';
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <!-- Google Translate Widget -->
+                <li class="nav-item">
+                    <div id="google_translate_element"></div>
+                </li>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <li class="nav-item">
                         <span class="nav-link text-light">Welcome, <?php echo htmlspecialchars($_SESSION['user_name']); ?> (<?php echo ucfirst($_SESSION['role']); ?>)</span>
@@ -71,3 +97,15 @@ require_once __DIR__ . '/functions.php';
         }
     }
     ?>
+
+<!-- Google Translate Script -->
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+      pageLanguage: 'en',
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+      autoDisplay: false
+  }, 'google_translate_element');
+}
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
