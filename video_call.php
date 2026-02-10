@@ -129,7 +129,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
             <p class="text-muted text-center mt-4">Start speaking to see captions...</p>
         </div>
         <div class="p-2 border-top">
-             <button id="toggle-speech" class="btn btn-outline-primary btn-sm w-100">Enable Auto-Transcription</button>
+             <button id="toggle-speech" class="btn btn-outline-primary btn-sm w-100 mb-2">Enable Auto-Transcription</button>
+             <div class="input-group input-group-sm">
+                 <input type="text" id="manual-caption" class="form-control" placeholder="Type if mic fails...">
+                 <button class="btn btn-secondary" onclick="sendManualCaption()"><i class="fas fa-paper-plane"></i></button>
+             </div>
         </div>
 
         <!-- Document Sharing -->
@@ -230,6 +234,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
             recognition.start();
         }
     };
+
+    // Manual Fallback
+    function sendManualCaption() {
+        const input = document.getElementById('manual-caption');
+        const text = input.value.trim();
+        if (text) {
+            sendCaption(text);
+            input.value = '';
+        }
+    }
+
+    // Allow Enter key
+    document.getElementById('manual-caption').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            sendManualCaption();
+        }
+    });
 
     // --- AJAX Helper Functions ---
 
