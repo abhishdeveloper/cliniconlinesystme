@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS appointments (
     appointment_date DATETIME NOT NULL,
     status ENUM('pending', 'confirmed', 'completed', 'cancelled') DEFAULT 'pending',
     notes TEXT,
+    meeting_link VARCHAR(255) DEFAULT NULL, -- For Jitsi Video Call
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (doctor_id) REFERENCES users(id) ON DELETE SET NULL,
@@ -86,13 +87,26 @@ CREATE TABLE IF NOT EXISTS prescriptions (
 CREATE TABLE IF NOT EXISTS patient_reports (
     id INT AUTO_INCREMENT PRIMARY KEY,
     patient_id INT NOT NULL,
+    appointment_id INT DEFAULT NULL, -- Link to specific appointment/call
     title VARCHAR(255) NOT NULL,
     file_path VARCHAR(255) NOT NULL, -- Relative path (e.g., uploads/reports/file.pdf)
     description TEXT,
     uploaded_by INT NOT NULL, -- User ID of uploader (can be patient or doctor)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE SET NULL,
     FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Video Call Captions Table (For real-time transcription sharing)
+CREATE TABLE IF NOT EXISTS call_captions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    appointment_id INT NOT NULL,
+    user_id INT NOT NULL,
+    caption_text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Seed Initial Super Admin User (Password: admin123)

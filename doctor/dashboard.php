@@ -30,6 +30,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// Handle Start Call
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'start_call') {
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!verifyCsrfToken($csrf_token)) {
+         setFlashMessage('danger', "Invalid CSRF token.", 'danger');
+    } else {
+        $appt_id = $_POST['appointment_id'];
+
+        try {
+            // Check if link already exists
+            $stmt = $pdo->prepare("SELECT meeting_link FROM appointments WHERE id = ? AND doctor_id = ?");
+            $stmt->execute([$appt_id, $_SESSION['user_id']]);
+            $exists = $stmt->fetchColumn();
+
+            if (!$exists) {
+                // Generate simple unique room name
+                $roomName = "ClinicAppt-" . $appt_id . "-" . bin2hex(random_bytes(4));
+                $stmt = $pdo->prepare("UPDATE appointments SET meeting_link = ? WHERE id = ?");
+                $stmt->execute([$roomName, $appt_id]);
+                setFlashMessage('success', "Video call room created. Joining now...", 'success');
+            } else {
+                setFlashMessage('info', "Rejoining existing call...", 'info');
+            }
+            // Redirect to video call page
+            redirect('../video_call.php?appointment_id=' . $appt_id);
+
+        } catch (PDOException $e) {
+             setFlashMessage('danger', "Error starting call: " . $e->getMessage(), 'danger');
+        }
+    }
+}
+
 require_once '../includes/header.php';
 ?>
 
@@ -73,7 +105,7 @@ require_once '../includes/header.php';
                         <?php
                         try {
                             $stmt = $pdo->prepare("
-                                SELECT a.id, a.appointment_date, a.status, a.notes, u.name AS patient_name, u.prakruti
+                                SELECT a.id, a.appointment_date, a.status, a.notes, a.meeting_link, u.name AS patient_name, u.prakruti
                                 FROM appointments a
                                 JOIN users u ON a.patient_id = u.id
                                 WHERE a.doctor_id = ?
@@ -116,7 +148,23 @@ require_once '../includes/header.php';
 
                                     // Action Buttons
                                     echo "<td>
-                                            <a href='create_prescription.php?appointment_id=" . $appt['id'] . "' class='btn btn-sm btn-success'><i class='fas fa-file-prescription'></i> Rx</a>
+                                            <div class='d-flex gap-2'>
+                                                <a href='create_prescription.php?appointment_id=" . $appt['id'] . "' class='btn btn-sm btn-success'><i class='fas fa-file-prescription'></i> Rx</a>";
+
+                                    // Video Call Button (only if confirmed)
+                                    if ($appt['status'] === 'confirmed') {
+                                        $btnText = $appt['meeting_link'] ? '<i class="fas fa-video"></i> Join Call' : '<i class="fas fa-video"></i> Start Call';
+                                        $btnClass = $appt['meeting_link'] ? 'btn-danger' : 'btn-primary';
+
+                                        echo "<form method='POST' action=''>
+                                                <input type='hidden' name='csrf_token' value='" . generateCsrfToken() . "'>
+                                                <input type='hidden' name='action' value='start_call'>
+                                                <input type='hidden' name='appointment_id' value='" . $appt['id'] . "'>
+                                                <button type='submit' class='btn btn-sm $btnClass'>$btnText</button>
+                                              </form>";
+                                    }
+
+                                    echo "  </div>
                                           </td>";
                                     echo "</tr>";
                                 }

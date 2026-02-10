@@ -255,6 +255,10 @@ require_once '../includes/header.php';
                                             echo "<td><span class='badge $badgeClass rounded-pill'>" . ucfirst($appt['status']) . "</span></td>";
 
                                             echo "<td>";
+                                            if (!empty($appt['meeting_link']) && $appt['status'] === 'confirmed') {
+                                                 echo "<a href='/video_call.php?appointment_id=" . $appt['id'] . "' class='btn btn-sm btn-danger me-2' target='_blank'><i class='fas fa-video'></i> Join Call</a>";
+                                            }
+
                                             if ($appt['prescription_id']) {
                                                 echo "<a href='/prescription_view.php?id=" . $appt['prescription_id'] . "' class='btn btn-sm btn-outline-primary' target='_blank'><i class='fas fa-file-prescription'></i> View Rx</a>";
                                             } else {
