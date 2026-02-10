@@ -112,6 +112,7 @@ require_once '../includes/header.php';
                             <th>Patient Name</th>
                             <th>Prakruti</th>
                             <th>Status</th>
+                            <th>Payment</th>
                             <th>Notes</th>
                             <th>Update Status</th>
                             <th>Action</th>
@@ -121,7 +122,9 @@ require_once '../includes/header.php';
                         <?php
                         try {
                             $stmt = $pdo->prepare("
-                                SELECT a.id, a.appointment_date, a.status, a.notes, a.meeting_link, u.name AS patient_name, u.prakruti
+                                SELECT a.id, a.appointment_date, a.status, a.notes, a.meeting_link,
+                                       a.payment_status, a.payment_method,
+                                       u.name AS patient_name, u.prakruti
                                 FROM appointments a
                                 JOIN users u ON a.patient_id = u.id
                                 WHERE a.doctor_id = ?
@@ -142,8 +145,11 @@ require_once '../includes/header.php';
                                     echo "<tr>";
                                     echo "<td>" . date('M d, Y g:i A', strtotime($appt['appointment_date'])) . "</td>";
                                     echo "<td>" . htmlspecialchars($appt['patient_name']) . "</td>";
+                                    $payBadge = ($appt['payment_status'] === 'paid') ? 'bg-success' : 'bg-warning text-dark';
+
                                     echo "<td>" . ($appt['prakruti'] ? htmlspecialchars($appt['prakruti']) : '<span class="text-muted">N/A</span>') . "</td>";
                                     echo "<td><span class='badge bg-{$statusColor}'>" . ucfirst($appt['status']) . "</span></td>";
+                                    echo "<td><span class='badge $payBadge'>" . ucfirst($appt['payment_status']) . "</span><br><small class='text-muted'>" . ucfirst($appt['payment_method'] ?? '') . "</small></td>";
                                     echo "<td>" . htmlspecialchars($appt['notes']) . "</td>";
 
                                     // Status Update Form

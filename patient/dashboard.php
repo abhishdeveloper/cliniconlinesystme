@@ -32,7 +32,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_slots') {
     exit;
 }
 
-// Handle Booking
+// Handle Booking Initialization (Redirect to Payment)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'book_appointment') {
     $csrf_token = $_POST['csrf_token'] ?? '';
 
@@ -46,63 +46,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         if (empty($doctor_id) || empty($slot_id)) {
             setFlashMessage('danger', "Please select a doctor and a time slot.", 'danger');
         } else {
-            try {
-            $pdo->beginTransaction();
-
-            // Verify Slot
-            $check = $pdo->prepare("SELECT slot_datetime FROM appointment_slots WHERE id = ? AND is_booked = 0");
-            $check->execute([$slot_id]);
-            $slot = $check->fetch();
-
-            if (!$slot) {
-                $pdo->rollBack();
-                setFlashMessage('danger', "Sorry, this slot was just taken.", 'danger');
+            // Verify slot availability first
+            $stmt = $pdo->prepare("SELECT id FROM appointment_slots WHERE id = ? AND is_booked = 0");
+            $stmt->execute([$slot_id]);
+            if (!$stmt->fetch()) {
+                setFlashMessage('danger', "Sorry, this slot is no longer available.", 'danger');
             } else {
-                // Mark Slot as Booked
-                $update = $pdo->prepare("UPDATE appointment_slots SET is_booked = 1 WHERE id = ?");
-                $update->execute([$slot_id]);
-
-                // Create Appointment
-                $stmt = $pdo->prepare("INSERT INTO appointments (patient_id, doctor_id, appointment_date, status, notes, slot_id) VALUES (?, ?, ?, 'pending', ?, ?)");
-                $stmt->execute([$_SESSION['user_id'], $doctor_id, $slot['slot_datetime'], $notes, $slot_id]);
-
-                $pdo->commit();
-
-                // 4. Send Notifications
-                // Get Doctor Email/Phone
-                $doc_stmt = $pdo->prepare("SELECT email, phone, name FROM users WHERE id = ?");
-                $doc_stmt->execute([$doctor_id]);
-                $doctor = $doc_stmt->fetch();
-
-                // Get Patient Email/Phone (Current User)
-                $pat_stmt = $pdo->prepare("SELECT email, phone, name FROM users WHERE id = ?");
-                $pat_stmt->execute([$_SESSION['user_id']]);
-                $patient = $pat_stmt->fetch();
-
-                $appt_time = date('F j, Y g:i A', strtotime($slot['slot_datetime']));
-
-                // Notify Patient
-                $msg_pat = "Your appointment with Dr. {$doctor['name']} on $appt_time is confirmed.";
-                // Pass dummy phone if null for testing
-                $pat_phone = $patient['phone'] ?? '+15550000000';
-                sendSMS($pat_phone, $msg_pat);
-                sendEmail($patient['email'], "Appointment Confirmed", $msg_pat);
-
-                // Notify Doctor
-                $msg_doc = "New appointment: {$patient['name']} on $appt_time.";
-                $doc_phone = $doctor['phone'] ?? '+15550000000';
-                sendSMS($doc_phone, $msg_doc);
-                sendEmail($doctor['email'], "New Appointment Request", $msg_doc);
-
-                setFlashMessage('success', "Appointment booked successfully! Confirmation sent.", 'success');
-                redirect('dashboard.php');
+                // Redirect to Payment Page with details
+                // Ideally, we should encrypt or store this in session to prevent tampering,
+                // but for this simple version, passing IDs is acceptable if validated again on payment page.
+                // Better: Store in Session.
+                $_SESSION['pending_booking'] = [
+                    'doctor_id' => $doctor_id,
+                    'slot_id' => $slot_id,
+                    'notes' => $notes
+                ];
+                redirect('payment.php');
             }
-        } catch (PDOException $e) {
-            $pdo->rollBack();
-            setFlashMessage('danger', "Error booking appointment: " . $e->getMessage(), 'danger');
         }
     }
-}
 }
 
 // Handle File Upload
@@ -245,6 +207,7 @@ require_once '../includes/header.php';
                                     <th>Date</th>
                                     <th>Doctor</th>
                                     <th>Status</th>
+                                    <th>Payment</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -253,6 +216,7 @@ require_once '../includes/header.php';
                                 try {
                                     $stmt = $pdo->prepare("
                                         SELECT a.id, a.appointment_date, a.status, a.notes,
+                                               a.payment_status, a.payment_method,
                                                u.name AS doctor_name,
                                                p.id AS prescription_id
                                         FROM appointments a
@@ -277,10 +241,13 @@ require_once '../includes/header.php';
                                                 default => 'bg-secondary'
                                             };
 
+                                            $payBadge = ($appt['payment_status'] === 'paid') ? 'bg-success' : 'bg-warning text-dark';
+
                                             echo "<tr>";
                                             echo "<td><strong>$dateStr</strong><br><small class='text-muted'>$timeStr</small></td>";
                                             echo "<td>Dr. " . htmlspecialchars($appt['doctor_name']) . "</td>";
                                             echo "<td><span class='badge $badgeClass rounded-pill'>" . ucfirst($appt['status']) . "</span></td>";
+                                            echo "<td><span class='badge $payBadge'>" . ucfirst($appt['payment_status']) . "</span><br><small class='text-muted'>" . ucfirst($appt['payment_method'] ?? '') . "</small></td>";
 
                                             echo "<td>";
                                             if (!empty($appt['meeting_link']) && $appt['status'] === 'confirmed') {

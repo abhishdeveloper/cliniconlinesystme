@@ -45,6 +45,13 @@ CREATE TABLE IF NOT EXISTS appointments (
     status ENUM('pending', 'confirmed', 'completed', 'cancelled') DEFAULT 'pending',
     notes TEXT,
     meeting_link VARCHAR(255) DEFAULT NULL, -- For Jitsi Video Call
+
+    -- Payment Fields
+    payment_status ENUM('pending', 'paid') DEFAULT 'pending',
+    payment_method VARCHAR(50) DEFAULT NULL, -- razorpay, cash, other
+    transaction_id VARCHAR(255) DEFAULT NULL,
+    amount DECIMAL(10,2) DEFAULT 0.00,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (doctor_id) REFERENCES users(id) ON DELETE SET NULL,

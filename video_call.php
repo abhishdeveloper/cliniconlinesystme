@@ -43,7 +43,12 @@ try {
 
 // Handle File Upload via AJAX (will be called by JS)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'upload_doc') {
-    // Basic session check already done
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!verifyCsrfToken($csrf_token)) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid CSRF token']);
+        exit;
+    }
+
     if (isset($_FILES['file'])) {
         $res = uploadFile($_FILES['file'], 'uploads/reports/');
         if ($res['success']) {
@@ -60,10 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Handle Caption Save via AJAX
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_caption') {
-    $text = trim($_POST['text']);
-    if (!empty($text)) {
-        $stmt = $pdo->prepare("INSERT INTO call_captions (appointment_id, user_id, caption_text) VALUES (?, ?, ?)");
-        $stmt->execute([$appt_id, $user_id, $text]);
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (verifyCsrfToken($csrf_token)) {
+        $text = trim($_POST['text']);
+        if (!empty($text)) {
+            $stmt = $pdo->prepare("INSERT INTO call_captions (appointment_id, user_id, caption_text) VALUES (?, ?, ?)");
+            $stmt->execute([$appt_id, $user_id, $text]);
+        }
     }
     exit;
 }
@@ -187,6 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     const domain = "meet.jit.si";
     const roomName = "<?php echo htmlspecialchars($appt['meeting_link']); ?>"; // Unique room from DB
     const userName = "<?php echo htmlspecialchars($user_name); ?>";
+    const csrfToken = "<?php echo generateCsrfToken(); ?>";
 
     // Init Jitsi
     const options = {
@@ -288,6 +297,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
         const formData = new FormData();
         formData.append('action', 'save_caption');
         formData.append('text', text);
+        formData.append('csrf_token', csrfToken);
 
         fetch(window.location.href, { method: 'POST', body: formData });
         // Optimistic UI update
@@ -319,6 +329,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
         const formData = new FormData();
         formData.append('action', 'upload_doc');
         formData.append('file', input.files[0]);
+        formData.append('csrf_token', csrfToken);
 
         // Show loading
         const list = document.getElementById('docs-list');
@@ -362,10 +373,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
                 let newHtml = '';
                 if (data.docs.length > 0) {
                     data.docs.forEach(doc => {
+                        // Securely escape title
+                        const div = document.createElement('div');
+                        div.textContent = doc.title;
+                        const safeTitle = div.innerHTML;
+
                         newHtml += `
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 70%;">
-                                    <i class="fas fa-file"></i> ${doc.title}
+                                    <i class="fas fa-file"></i> ${safeTitle}
                                 </div>
                                 <a href="${doc.file_path}" target="_blank" class="btn btn-sm btn-outline-success"><i class="fas fa-download"></i></a>
                             </li>`;
