@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'name' => $_POST['med_name'][$i],
                     'type' => $_POST['med_type'][$i],
                     'dosage' => $_POST['med_dosage'][$i],
+                    'quantity' => intval($_POST['med_quantity'][$i] ?? 1),
                     'duration' => $_POST['med_duration'][$i]
                 ];
             }
@@ -104,6 +105,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $appointment_id, $appointment['patient_id'], $_SESSION['user_id'],
                     $diagnosis, $medicines_json, $notes, $vikruti, $pulse, $tongue, $skin
                 ]);
+
+                // Deduct Stock
+                $deduct = $pdo->prepare("UPDATE medicines SET stock_quantity = GREATEST(stock_quantity - ?, 0) WHERE name = ?");
+                foreach ($medicines as $med) {
+                    $deduct->execute([$med['quantity'], $med['name']]);
+                }
 
                 // Mark appointment as completed
                 $upd = $pdo->prepare("UPDATE appointments SET status = 'completed' WHERE id = ?");
@@ -254,8 +261,9 @@ require_once '../includes/header.php';
                             <table class="table table-bordered" id="medTable">
                                 <thead class="table-light">
                                     <tr>
-                                        <th width="35%">Medicine</th>
-                                        <th width="20%">Type</th>
+                                        <th width="30%">Medicine</th>
+                                        <th width="15%">Type</th>
+                                        <th width="10%">Qty</th>
                                         <th width="25%">Dosage</th>
                                         <th width="15%">Duration</th>
                                         <th width="5%"></th>
@@ -273,6 +281,7 @@ require_once '../includes/header.php';
                                                 <option value="Paste">Paste</option>
                                             </select>
                                         </td>
+                                        <td><input type="number" name="med_quantity[]" class="form-control" value="1" min="1"></td>
                                         <td><input type="text" name="med_dosage[]" class="form-control"></td>
                                         <td><input type="text" name="med_duration[]" class="form-control"></td>
                                         <td><button type="button" class="btn btn-danger btn-sm remove-row"><i class="fas fa-times"></i></button></td>

@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS medicines (
     name VARCHAR(100) NOT NULL,
     type VARCHAR(50) DEFAULT 'Powder', -- e.g., Powder, Tablet, Syrup, Oil
     default_dosage VARCHAR(255) DEFAULT NULL, -- e.g., "1 tsp twice daily"
+    stock_quantity INT DEFAULT 0, -- Inventory Level
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -133,9 +134,9 @@ INSERT INTO users (name, email, phone, password, role, prakruti) VALUES
 ('John Doe', 'patient@clinic.com', '+15559876543', '$2y$10$KOno9WKy/.t/Kn4kV6Tg.uDE.QxQg.rJ1Qkmhy8hmmaEnjTQiwLeS', 'patient', 'Vata-Pitta');
 
 -- Seed Initial Ayurvedic Medicines
-INSERT INTO medicines (name, type, default_dosage, description) VALUES
-('Ashwagandha Churna', 'Powder', '1 tsp twice daily with warm milk', 'Relieves stress and improves vitality'),
-('Triphala Churna', 'Powder', '1 tsp at bedtime with warm water', 'Digestive health and detox'),
-('Brahmi Vati', 'Tablet', '1 tablet twice daily', 'Memory and cognitive function'),
-('Chyawanprash', 'Paste', '1 tsp daily in morning', 'Immunity booster'),
-('Mahanarayan Taila', 'Oil', 'Apply externally on joints', 'Joint pain relief');
+INSERT INTO medicines (name, type, default_dosage, stock_quantity, description) VALUES
+('Ashwagandha Churna', 'Powder', '1 tsp twice daily with warm milk', 100, 'Relieves stress and improves vitality'),
+('Triphala Churna', 'Powder', '1 tsp at bedtime with warm water', 50, 'Digestive health and detox'),
+('Brahmi Vati', 'Tablet', '1 tablet twice daily', 200, 'Memory and cognitive function'),
+('Chyawanprash', 'Paste', '1 tsp daily in morning', 30, 'Immunity booster'),
+('Mahanarayan Taila', 'Oil', 'Apply externally on joints', 20, 'Joint pain relief');

@@ -20,14 +20,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $name = trim($_POST['name']);
         $type = trim($_POST['type']);
         $default_dosage = trim($_POST['default_dosage']);
+        $stock = intval($_POST['stock_quantity']);
         $description = trim($_POST['description']);
 
         if (empty($name)) {
             $error = "Medicine name is required.";
         } else {
             try {
-                $stmt = $pdo->prepare("INSERT INTO medicines (name, type, default_dosage, description) VALUES (?, ?, ?, ?)");
-                if ($stmt->execute([$name, $type, $default_dosage, $description])) {
+                $stmt = $pdo->prepare("INSERT INTO medicines (name, type, default_dosage, stock_quantity, description) VALUES (?, ?, ?, ?, ?)");
+                if ($stmt->execute([$name, $type, $default_dosage, $stock, $description])) {
                     setFlashMessage('success', "Medicine '$name' added successfully!", 'success');
                     redirect('medicines.php');
                 } else {
@@ -100,6 +101,10 @@ require_once '../includes/header.php';
                             <input type="text" name="default_dosage" class="form-control" placeholder="e.g., 1 tsp twice daily">
                         </div>
                         <div class="mb-3">
+                            <label class="form-label">Initial Stock Quantity</label>
+                            <input type="number" name="stock_quantity" class="form-control" value="0" min="0">
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Description/Notes</label>
                             <textarea name="description" class="form-control" rows="2"></textarea>
                         </div>
@@ -122,6 +127,7 @@ require_once '../includes/header.php';
                                 <tr>
                                     <th>Name</th>
                                     <th>Type</th>
+                                    <th>Stock</th>
                                     <th>Dosage</th>
                                     <th>Action</th>
                                 </tr>
@@ -130,9 +136,11 @@ require_once '../includes/header.php';
                                 <?php
                                 $stmt = $pdo->query("SELECT * FROM medicines ORDER BY name ASC");
                                 while ($med = $stmt->fetch()) {
+                                    $stockClass = ($med['stock_quantity'] < 10) ? 'text-danger fw-bold' : 'text-success';
                                     echo "<tr>";
                                     echo "<td><strong>" . htmlspecialchars($med['name']) . "</strong><br><small class='text-muted'>" . htmlspecialchars($med['description']) . "</small></td>";
                                     echo "<td><span class='badge bg-secondary'>" . htmlspecialchars($med['type']) . "</span></td>";
+                                    echo "<td class='$stockClass'>" . $med['stock_quantity'] . "</td>";
                                     echo "<td>" . htmlspecialchars($med['default_dosage']) . "</td>";
                                     echo "<td>
                                             <form method='POST' action='' style='display:inline;'>
