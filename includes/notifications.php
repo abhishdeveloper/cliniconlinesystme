@@ -47,6 +47,18 @@ function sendSMS($to, $body) {
 }
 
 /**
+ * Helper to send command and check response
+ */
+function server_parse($socket, $response) {
+    $server_response = '';
+    while (substr($server_response, 3, 1) != ' ') {
+        if (!($server_response = fgets($socket, 256))) return false;
+    }
+    if (!(substr($server_response, 0, 3) == $response)) return false;
+    return true;
+}
+
+/**
  * Send Email using Simple SMTP Implementation
  * This avoids heavy libraries like PHPMailer for lightweight hosting.
  * @param string $to Recipient email
@@ -79,16 +91,6 @@ function sendEmail($to, $subject, $message) {
     try {
         $socket = fsockopen($smtp_host, $smtp_port, $errno, $errstr, 15);
         if (!$socket) return false;
-
-        // Helper to send command and check response
-        function server_parse($socket, $response) {
-            $server_response = '';
-            while (substr($server_response, 3, 1) != ' ') {
-                if (!($server_response = fgets($socket, 256))) return false;
-            }
-            if (!(substr($server_response, 0, 3) == $response)) return false;
-            return true;
-        }
 
         server_parse($socket, '220');
         fwrite($socket, "EHLO $smtp_host\r\n");

@@ -8,8 +8,16 @@ if (!isLoggedIn('doctor')) {
     redirect('/login.php');
 }
 
+// Generate CSRF Token
+$csrf_token = generate_csrf_token();
+
 // Handle Status Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_status') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        setFlashMessage('danger', "Invalid CSRF token.", 'danger');
+        redirect('dashboard.php');
+    }
+
     $appt_id = $_POST['appointment_id'];
     $new_status = $_POST['status'];
     $notes = trim($_POST['notes']);
@@ -70,6 +78,7 @@ require_once '../includes/header.php';
                                 echo "<td>" . htmlspecialchars($appt['notes']) . "</td>";
                                 echo "<td>
                                         <form method='POST' action='' class='d-flex gap-2'>
+                                            <input type='hidden' name='csrf_token' value='{$csrf_token}'>
                                             <input type='hidden' name='action' value='update_status'>
                                             <input type='hidden' name='appointment_id' value='" . $appt['id'] . "'>
                                             <select name='status' class='form-select form-select-sm'>
