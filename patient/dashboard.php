@@ -157,12 +157,12 @@ require_once '../includes/header.php';
                     <h5 class="mb-0"><i class="fas fa-calendar-plus"></i> Book Appointment</h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="">
+                    <form method="POST" action="" id="bookingForm">
                         <input type="hidden" name="action" value="book_appointment">
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">1. Select Doctor</label>
-                            <input type="text" id="doctorSearch" class="form-control mb-2" placeholder="Search doctor by name or specialty..." onkeyup="filterDoctors()">
+                            <label class="form-label fw-bold" for="doctor_select">1. Select Doctor</label>
+                            <input type="text" id="doctorSearch" class="form-control mb-2" placeholder="Search doctor by name or specialty..." aria-label="Filter doctors by name or specialty" onkeyup="filterDoctors()">
                             <select name="doctor_id" id="doctor_select" class="form-select" size="5" required onchange="loadSlots(this.value)">
                                 <option value="" disabled selected>Select a Doctor...</option>
                                 <?php
@@ -262,7 +262,7 @@ require_once '../includes/header.php';
                                             echo "<form method='POST' action='' style='display:inline;' onsubmit='return confirm(\"Are you sure you want to cancel this appointment?\");'>
                                                     <input type='hidden' name='action' value='cancel_appointment'>
                                                     <input type='hidden' name='appointment_id' value='{$appt['id']}'>
-                                                    <button type='submit' class='btn btn-sm btn-danger' title='Cancel Appointment'><i class='fas fa-times'></i></button>
+                                                    <button type='submit' class='btn btn-sm btn-danger' aria-label='Cancel Appointment' title='Cancel Appointment'><i class='fas fa-times'></i></button>
                                                   </form>";
                                         }
 
@@ -338,6 +338,23 @@ function filterDoctors() {
             options[i].style.display = "none";
         }
     }
+}
+
+// Add loading state to booking form
+const bookingForm = document.getElementById('bookingForm');
+if (bookingForm) {
+    bookingForm.addEventListener('submit', function(e) {
+        const btn = this.querySelector('button[type="submit"]');
+        if (btn) {
+            // Prevent multiple clicks if already disabled (though submit shouldn't fire)
+            if (btn.disabled) {
+                e.preventDefault();
+                return;
+            }
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Booking...';
+        }
+    });
 }
 </script>
 
