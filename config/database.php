@@ -98,6 +98,8 @@ if ($use_sqlite) {
                 FOREIGN KEY (doctor_id) REFERENCES users(id) ON DELETE SET NULL,
                 FOREIGN KEY (slot_id) REFERENCES appointment_slots(id) ON DELETE SET NULL
             );
+            CREATE INDEX IF NOT EXISTS idx_appointments_doctor_date ON appointments (doctor_id, appointment_date);
+            CREATE INDEX IF NOT EXISTS idx_appointments_patient_date ON appointments (patient_id, appointment_date);
         ");
 
         $pdo->exec("
