@@ -22,8 +22,10 @@ function isLoggedIn($role = null) {
     if (!isset($_SESSION['user_id'])) {
         return false;
     }
-    if ($role && $_SESSION['role'] !== $role) {
-        return false;
+    if ($role) {
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== $role) {
+            return false;
+        }
     }
     return true;
 }
@@ -68,5 +70,28 @@ function getFlashMessage($key) {
                 </div>";
     }
     return null;
+}
+
+/**
+ * Generates a CSRF token and stores it in the session.
+ * @return string
+ */
+function generate_csrf_token() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Verifies the CSRF token from a request.
+ * @param string $token
+ * @return bool
+ */
+function verify_csrf_token($token) {
+    if (!isset($_SESSION['csrf_token']) || empty($token)) {
+        return false;
+    }
+    return hash_equals($_SESSION['csrf_token'], $token);
 }
 ?>

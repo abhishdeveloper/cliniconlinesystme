@@ -9,6 +9,9 @@ if (!isLoggedIn('patient')) {
     redirect('/login.php');
 }
 
+// Generate CSRF Token
+$csrf_token = generate_csrf_token();
+
 // Handle AJAX Request for Slots
 if (isset($_GET['action']) && $_GET['action'] === 'get_slots') {
     $doctor_id = intval($_GET['doctor_id']);
@@ -34,6 +37,11 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_slots') {
 
 // Handle Cancellation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'cancel_appointment') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        setFlashMessage('danger', "Invalid CSRF token.", 'danger');
+        redirect('dashboard.php');
+    }
+
     $appt_id = $_POST['appointment_id'];
 
     try {
@@ -75,6 +83,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Handle Booking
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'book_appointment') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        setFlashMessage('danger', "Invalid CSRF token.", 'danger');
+        redirect('dashboard.php');
+    }
+
     $doctor_id = $_POST['doctor_id'];
     $slot_id = $_POST['slot_id'];
     $notes = trim($_POST['notes']);
@@ -159,6 +172,7 @@ require_once '../includes/header.php';
                 <div class="card-body">
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="book_appointment">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">1. Select Doctor</label>
@@ -262,6 +276,7 @@ require_once '../includes/header.php';
                                             echo "<form method='POST' action='' style='display:inline;' onsubmit='return confirm(\"Are you sure you want to cancel this appointment?\");'>
                                                     <input type='hidden' name='action' value='cancel_appointment'>
                                                     <input type='hidden' name='appointment_id' value='{$appt['id']}'>
+                                                    <input type='hidden' name='csrf_token' value='{$csrf_token}'>
                                                     <button type='submit' class='btn btn-sm btn-danger' title='Cancel Appointment'><i class='fas fa-times'></i></button>
                                                   </form>";
                                         }
