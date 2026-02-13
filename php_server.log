@@ -1,0 +1,115 @@
+[Fri Feb 13 05:49:28 2026] PHP 8.3.6 Development Server (http://localhost:8080) started
+[Fri Feb 13 05:50:11 2026] [::1]:52746 Accepted
+[Fri Feb 13 05:50:11 2026] [::1]:52746 [302]: POST /login.php
+[Fri Feb 13 05:50:11 2026] [::1]:52746 Closing
+[Fri Feb 13 05:50:11 2026] [::1]:52758 Accepted
+[Fri Feb 13 05:50:11 2026] [::1]:52758 [200]: GET /patient/dashboard.php
+[Fri Feb 13 05:50:11 2026] [::1]:52758 Closing
+[Fri Feb 13 05:50:11 2026] [::1]:52770 Accepted
+[Fri Feb 13 05:50:11 2026] [::1]:52770 [200]: GET /video_call.php?appointment_id=1
+[Fri Feb 13 05:50:11 2026] [::1]:52770 Closing
+[Fri Feb 13 05:50:11 2026] [::1]:52786 Accepted
+[Fri Feb 13 05:50:11 2026] [::1]:52786 [302]: POST /login.php
+[Fri Feb 13 05:50:11 2026] [::1]:52786 Closing
+[Fri Feb 13 05:50:11 2026] [::1]:52792 Accepted
+[Fri Feb 13 05:50:11 2026] [::1]:52792 [200]: GET /doctor/dashboard.php
+[Fri Feb 13 05:50:11 2026] [::1]:52792 Closing
+[Fri Feb 13 05:50:11 2026] [::1]:52796 Accepted
+[Fri Feb 13 05:50:11 2026] [::1]:52796 [200]: GET /video_call.php?appointment_id=1
+[Fri Feb 13 05:50:11 2026] [::1]:52796 Closing
+[Fri Feb 13 05:50:11 2026] [::1]:52808 Accepted
+[Fri Feb 13 05:50:11 2026] [::1]:52808 [302]: POST /login.php
+[Fri Feb 13 05:50:11 2026] [::1]:52808 Closing
+[Fri Feb 13 05:50:11 2026] [::1]:52820 Accepted
+[Fri Feb 13 05:50:11 2026] [::1]:52820 [200]: GET /patient/dashboard.php
+[Fri Feb 13 05:50:11 2026] [::1]:52820 Closing
+[Fri Feb 13 05:50:11 2026] [::1]:52828 Accepted
+[Fri Feb 13 05:50:11 2026] [::1]:52828 [302]: GET /video_call.php?appointment_id=1
+[Fri Feb 13 05:50:11 2026] [::1]:52828 Closing
+[Fri Feb 13 05:50:11 2026] [::1]:52832 Accepted
+[Fri Feb 13 05:50:11 2026] [::1]:52832 [302]: GET /video_call.php?appointment_id=2
+[Fri Feb 13 05:50:11 2026] [::1]:52832 Closing
+[Fri Feb 13 05:50:40 2026] [::1]:49138 Accepted
+[Fri Feb 13 05:50:40 2026] [::1]:49138 [302]: POST /login.php
+[Fri Feb 13 05:50:40 2026] [::1]:49138 Closing
+[Fri Feb 13 05:50:40 2026] [::1]:49142 Accepted
+[Fri Feb 13 05:50:40 2026] [::1]:49142 [200]: GET /patient/dashboard.php
+[Fri Feb 13 05:50:40 2026] [::1]:49142 Closing
+[Fri Feb 13 05:50:40 2026] [::1]:49152 Accepted
+[Fri Feb 13 05:50:40 2026] [::1]:49152 [200]: GET /video_call.php?appointment_id=1
+[Fri Feb 13 05:50:40 2026] [::1]:49152 Closing
+[Fri Feb 13 05:50:40 2026] [::1]:49168 Accepted
+[Fri Feb 13 05:50:40 2026] [::1]:49168 [302]: POST /login.php
+[Fri Feb 13 05:50:40 2026] [::1]:49168 Closing
+[Fri Feb 13 05:50:40 2026] [::1]:41434 Accepted
+[Fri Feb 13 05:50:40 2026] [::1]:41434 [200]: GET /doctor/dashboard.php
+[Fri Feb 13 05:50:40 2026] [::1]:41434 Closing
+[Fri Feb 13 05:50:40 2026] [::1]:41446 Accepted
+[Fri Feb 13 05:50:40 2026] [::1]:41446 [200]: GET /video_call.php?appointment_id=1
+[Fri Feb 13 05:50:40 2026] [::1]:41446 Closing
+[Fri Feb 13 05:50:40 2026] [::1]:41458 Accepted
+[Fri Feb 13 05:50:40 2026] [::1]:41458 [302]: POST /login.php
+[Fri Feb 13 05:50:40 2026] [::1]:41458 Closing
+[Fri Feb 13 05:50:40 2026] [::1]:41472 Accepted
+[Fri Feb 13 05:50:40 2026] [::1]:41472 [200]: GET /patient/dashboard.php
+[Fri Feb 13 05:50:40 2026] [::1]:41472 Closing
+[Fri Feb 13 05:50:40 2026] [::1]:41484 Accepted
+[Fri Feb 13 05:50:40 2026] [::1]:41484 [302]: GET /video_call.php?appointment_id=1
+[Fri Feb 13 05:50:40 2026] [::1]:41484 Closing
+[Fri Feb 13 05:50:40 2026] [::1]:41492 Accepted
+[Fri Feb 13 05:50:40 2026] [::1]:41492 [302]: GET /video_call.php?appointment_id=2
+[Fri Feb 13 05:50:40 2026] [::1]:41492 Closing
+[Fri Feb 13 05:53:27 2026] [::1]:42134 Accepted
+[Fri Feb 13 05:53:27 2026] [::1]:42134 [200]: GET /login.php
+[Fri Feb 13 05:53:27 2026] [::1]:42134 Closing
+[Fri Feb 13 05:53:27 2026] [::1]:42140 Accepted
+[Fri Feb 13 05:53:27 2026] [::1]:42148 Accepted
+[Fri Feb 13 05:53:27 2026] [::1]:42140 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:53:27 2026] [::1]:42148 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:53:27 2026] [::1]:42140 Closing
+[Fri Feb 13 05:53:27 2026] [::1]:42148 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42162 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42162 [302]: POST /login.php
+[Fri Feb 13 05:53:28 2026] [::1]:42162 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42174 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42174 [200]: GET /patient/dashboard.php
+[Fri Feb 13 05:53:28 2026] [::1]:42174 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42190 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42204 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42190 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:53:28 2026] [::1]:42204 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:53:28 2026] [::1]:42190 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42204 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42216 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42216 [302]: GET /logout.php
+[Fri Feb 13 05:53:28 2026] [::1]:42216 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42218 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42218 [200]: GET /login.php
+[Fri Feb 13 05:53:28 2026] [::1]:42218 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42230 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42246 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42230 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:53:28 2026] [::1]:42230 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42246 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:53:28 2026] [::1]:42246 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42260 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42260 [200]: GET /login.php
+[Fri Feb 13 05:53:28 2026] [::1]:42260 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42264 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42266 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42264 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:53:28 2026] [::1]:42266 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:53:28 2026] [::1]:42264 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42266 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42276 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42276 [302]: POST /login.php
+[Fri Feb 13 05:53:28 2026] [::1]:42276 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42286 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42286 [200]: GET /doctor/dashboard.php
+[Fri Feb 13 05:53:28 2026] [::1]:42286 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42292 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42296 Accepted
+[Fri Feb 13 05:53:28 2026] [::1]:42292 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:53:28 2026] [::1]:42292 Closing
+[Fri Feb 13 05:53:28 2026] [::1]:42296 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:53:28 2026] [::1]:42296 Closing
