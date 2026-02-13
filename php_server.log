@@ -1,0 +1,176 @@
+[Fri Feb 13 05:49:36 2026] PHP 8.3.6 Development Server (http://localhost:8000) started
+[Fri Feb 13 05:50:22 2026] [::1]:59540 Accepted
+[Fri Feb 13 05:50:22 2026] [::1]:59540 [200]: GET /login.php
+[Fri Feb 13 05:50:22 2026] [::1]:59540 Closing
+[Fri Feb 13 05:50:22 2026] [::1]:59546 Accepted
+[Fri Feb 13 05:50:22 2026] [::1]:59562 Accepted
+[Fri Feb 13 05:50:22 2026] [::1]:59546 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:50:22 2026] [::1]:59562 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:50:22 2026] [::1]:59546 Closing
+[Fri Feb 13 05:50:22 2026] [::1]:59562 Closing
+[Fri Feb 13 05:50:23 2026] [::1]:59576 Accepted
+[Fri Feb 13 05:50:23 2026] [::1]:59576 [302]: POST /login.php
+[Fri Feb 13 05:50:23 2026] [::1]:59576 Closing
+[Fri Feb 13 05:50:23 2026] [::1]:59588 Accepted
+[Fri Feb 13 05:50:23 2026] [::1]:59588 [200]: GET /patient/dashboard.php
+[Fri Feb 13 05:50:23 2026] [::1]:59588 Closing
+[Fri Feb 13 05:50:23 2026] [::1]:59594 Accepted
+[Fri Feb 13 05:50:23 2026] [::1]:59604 Accepted
+[Fri Feb 13 05:50:23 2026] [::1]:59594 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:50:23 2026] [::1]:59594 Closing
+[Fri Feb 13 05:50:23 2026] [::1]:59604 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:50:23 2026] [::1]:59604 Closing
+[Fri Feb 13 05:50:23 2026] [::1]:59610 Accepted
+[Fri Feb 13 05:50:23 2026] [::1]:59610 [200]: GET /chat.php
+[Fri Feb 13 05:50:23 2026] [::1]:59610 Closing
+[Fri Feb 13 05:50:23 2026] [::1]:59618 Accepted
+[Fri Feb 13 05:50:23 2026] [::1]:59626 Accepted
+[Fri Feb 13 05:50:23 2026] [::1]:59618 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:50:23 2026] [::1]:59626 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:50:23 2026] [::1]:59618 Closing
+[Fri Feb 13 05:50:23 2026] [::1]:59626 Closing
+[Fri Feb 13 05:51:18 2026] [::1]:57452 Accepted
+[Fri Feb 13 05:51:18 2026] [::1]:57452 [200]: GET /login.php
+[Fri Feb 13 05:51:18 2026] [::1]:57452 Closing
+[Fri Feb 13 05:51:18 2026] [::1]:57466 Accepted
+[Fri Feb 13 05:51:18 2026] [::1]:57474 Accepted
+[Fri Feb 13 05:51:18 2026] [::1]:57466 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:51:18 2026] [::1]:57474 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:51:18 2026] [::1]:57466 Closing
+[Fri Feb 13 05:51:18 2026] [::1]:57474 Closing
+[Fri Feb 13 05:51:19 2026] [::1]:57480 Accepted
+[Fri Feb 13 05:51:19 2026] [::1]:57480 [302]: POST /login.php
+[Fri Feb 13 05:51:19 2026] [::1]:57480 Closing
+[Fri Feb 13 05:51:19 2026] [::1]:57490 Accepted
+[Fri Feb 13 05:51:19 2026] [::1]:57490 [200]: GET /patient/dashboard.php
+[Fri Feb 13 05:51:19 2026] [::1]:57490 Closing
+[Fri Feb 13 05:51:19 2026] [::1]:57504 Accepted
+[Fri Feb 13 05:51:19 2026] [::1]:57504 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:51:19 2026] [::1]:57504 Closing
+[Fri Feb 13 05:51:19 2026] [::1]:57506 Accepted
+[Fri Feb 13 05:51:19 2026] [::1]:57506 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:51:19 2026] [::1]:57506 Closing
+[Fri Feb 13 05:52:06 2026] [::1]:60542 Accepted
+[Fri Feb 13 05:52:06 2026] [::1]:60542 [200]: GET /login.php
+[Fri Feb 13 05:52:06 2026] [::1]:60542 Closing
+[Fri Feb 13 05:52:06 2026] [::1]:60546 Accepted
+[Fri Feb 13 05:52:06 2026] [::1]:60560 Accepted
+[Fri Feb 13 05:52:06 2026] [::1]:60546 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:52:06 2026] [::1]:60546 Closing
+[Fri Feb 13 05:52:06 2026] [::1]:60560 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:52:06 2026] [::1]:60560 Closing
+[Fri Feb 13 05:52:06 2026] [::1]:60568 Accepted
+[Fri Feb 13 05:52:06 2026] [::1]:60568 [302]: POST /login.php
+[Fri Feb 13 05:52:06 2026] [::1]:60568 Closing
+[Fri Feb 13 05:52:06 2026] [::1]:60574 Accepted
+[Fri Feb 13 05:52:06 2026] [::1]:60574 [200]: GET /patient/dashboard.php
+[Fri Feb 13 05:52:06 2026] [::1]:60574 Closing
+[Fri Feb 13 05:52:06 2026] [::1]:60582 Accepted
+[Fri Feb 13 05:52:06 2026] [::1]:60586 Accepted
+[Fri Feb 13 05:52:06 2026] [::1]:60582 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:52:06 2026] [::1]:60586 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:52:06 2026] [::1]:60582 Closing
+[Fri Feb 13 05:52:06 2026] [::1]:60586 Closing
+[Fri Feb 13 05:52:06 2026] [::1]:60592 Accepted
+[Fri Feb 13 05:52:06 2026] [::1]:60592 [200]: GET /patient/dashboard.php?action=get_slots&doctor_id=2
+[Fri Feb 13 05:52:06 2026] [::1]:60592 Closing
+[Fri Feb 13 05:53:45 2026] [::1]:48254 Accepted
+[Fri Feb 13 05:53:45 2026] [::1]:48254 [200]: GET /login.php
+[Fri Feb 13 05:53:45 2026] [::1]:48254 Closing
+[Fri Feb 13 05:53:45 2026] [::1]:48264 Accepted
+[Fri Feb 13 05:53:45 2026] [::1]:48268 Accepted
+[Fri Feb 13 05:53:45 2026] [::1]:48264 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:53:45 2026] [::1]:48264 Closing
+[Fri Feb 13 05:53:45 2026] [::1]:48268 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:53:45 2026] [::1]:48268 Closing
+[Fri Feb 13 05:53:45 2026] [::1]:48270 Accepted
+[Fri Feb 13 05:53:45 2026] [::1]:48270 [302]: POST /login.php
+[Fri Feb 13 05:53:45 2026] [::1]:48270 Closing
+[Fri Feb 13 05:53:45 2026] [::1]:48286 Accepted
+[Fri Feb 13 05:53:45 2026] [::1]:48286 [200]: GET /patient/dashboard.php
+[Fri Feb 13 05:53:45 2026] [::1]:48286 Closing
+[Fri Feb 13 05:53:45 2026] [::1]:48302 Accepted
+[Fri Feb 13 05:53:45 2026] [::1]:48312 Accepted
+[Fri Feb 13 05:53:45 2026] [::1]:48302 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:53:45 2026] [::1]:48312 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:53:45 2026] [::1]:48302 Closing
+[Fri Feb 13 05:53:45 2026] [::1]:48312 Closing
+[Fri Feb 13 05:53:45 2026] [::1]:48324 Accepted
+[Fri Feb 13 05:53:45 2026] [::1]:48324 [200]: GET /chat.php
+[Fri Feb 13 05:53:45 2026] [::1]:48324 Closing
+[Fri Feb 13 05:53:45 2026] [::1]:48340 Accepted
+[Fri Feb 13 05:53:45 2026] [::1]:48354 Accepted
+[Fri Feb 13 05:53:45 2026] [::1]:48340 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:53:45 2026] [::1]:48354 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:53:45 2026] [::1]:48340 Closing
+[Fri Feb 13 05:53:45 2026] [::1]:48354 Closing
+[Fri Feb 13 05:53:46 2026] [::1]:48364 Accepted
+[Fri Feb 13 05:53:46 2026] [::1]:48364 [200]: GET /chat.php?user_id=2
+[Fri Feb 13 05:53:46 2026] [::1]:48364 Closing
+[Fri Feb 13 05:53:46 2026] [::1]:48372 Accepted
+[Fri Feb 13 05:53:46 2026] [::1]:48380 Accepted
+[Fri Feb 13 05:53:46 2026] [::1]:48372 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:53:46 2026] [::1]:48380 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:53:46 2026] [::1]:48372 Closing
+[Fri Feb 13 05:53:46 2026] [::1]:48380 Closing
+[Fri Feb 13 05:53:46 2026] [::1]:48394 Accepted
+[Fri Feb 13 05:53:46 2026] [::1]:48394 [200]: GET /chat.php?action=fetch&user_id=2
+[Fri Feb 13 05:53:46 2026] [::1]:48394 Closing
+[Fri Feb 13 05:53:46 2026] [::1]:48398 Accepted
+[Fri Feb 13 05:53:46 2026] [MOCK SMS] To: +15551234567 | Body: New message from John Doe: Hello Doctor via New Chat!...
+[Fri Feb 13 05:53:46 2026] [MOCK EMAIL] To: doctor@clinic.com | Subject: New Message from John Doe | Body: New message from John Doe: Hello Doctor via New Chat!...
+[Fri Feb 13 05:53:46 2026] [::1]:48398 [200]: POST /chat.php?action=send
+[Fri Feb 13 05:53:46 2026] [::1]:48398 Closing
+[Fri Feb 13 05:53:46 2026] [::1]:48412 Accepted
+[Fri Feb 13 05:53:46 2026] [::1]:48412 [200]: GET /chat.php?action=fetch&user_id=2
+[Fri Feb 13 05:53:46 2026] [::1]:48412 Closing
+[Fri Feb 13 05:56:27 2026] [::1]:53498 Accepted
+[Fri Feb 13 05:56:27 2026] [::1]:53498 [200]: GET /login.php
+[Fri Feb 13 05:56:27 2026] [::1]:53498 Closing
+[Fri Feb 13 05:56:27 2026] [::1]:53512 Accepted
+[Fri Feb 13 05:56:27 2026] [::1]:53526 Accepted
+[Fri Feb 13 05:56:27 2026] [::1]:53512 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:56:27 2026] [::1]:53526 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:56:27 2026] [::1]:53512 Closing
+[Fri Feb 13 05:56:27 2026] [::1]:53526 Closing
+[Fri Feb 13 05:56:27 2026] [::1]:53538 Accepted
+[Fri Feb 13 05:56:28 2026] [::1]:53538 [302]: POST /login.php
+[Fri Feb 13 05:56:28 2026] [::1]:53538 Closing
+[Fri Feb 13 05:56:28 2026] [::1]:53540 Accepted
+[Fri Feb 13 05:56:28 2026] [::1]:53540 [200]: GET /patient/dashboard.php
+[Fri Feb 13 05:56:28 2026] [::1]:53540 Closing
+[Fri Feb 13 05:56:28 2026] [::1]:53544 Accepted
+[Fri Feb 13 05:56:28 2026] [::1]:53560 Accepted
+[Fri Feb 13 05:56:28 2026] [::1]:53544 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:56:28 2026] [::1]:53560 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:56:28 2026] [::1]:53544 Closing
+[Fri Feb 13 05:56:28 2026] [::1]:53560 Closing
+[Fri Feb 13 05:56:28 2026] [::1]:53564 Accepted
+[Fri Feb 13 05:56:28 2026] [::1]:53564 [200]: GET /chat.php
+[Fri Feb 13 05:56:28 2026] [::1]:53564 Closing
+[Fri Feb 13 05:56:28 2026] [::1]:53576 Accepted
+[Fri Feb 13 05:56:28 2026] [::1]:53582 Accepted
+[Fri Feb 13 05:56:28 2026] [::1]:53576 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:56:28 2026] [::1]:53582 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:56:28 2026] [::1]:53576 Closing
+[Fri Feb 13 05:56:28 2026] [::1]:53582 Closing
+[Fri Feb 13 05:56:28 2026] [::1]:53590 Accepted
+[Fri Feb 13 05:56:28 2026] [::1]:53590 [200]: GET /chat.php?user_id=2
+[Fri Feb 13 05:56:28 2026] [::1]:53590 Closing
+[Fri Feb 13 05:56:28 2026] [::1]:53596 Accepted
+[Fri Feb 13 05:56:28 2026] [::1]:53600 Accepted
+[Fri Feb 13 05:56:28 2026] [::1]:53596 [200]: GET /assets/css/style.css
+[Fri Feb 13 05:56:28 2026] [::1]:53600 [200]: GET /assets/js/script.js
+[Fri Feb 13 05:56:28 2026] [::1]:53596 Closing
+[Fri Feb 13 05:56:28 2026] [::1]:53600 Closing
+[Fri Feb 13 05:56:28 2026] [::1]:53604 Accepted
+[Fri Feb 13 05:56:28 2026] [::1]:53604 [200]: GET /chat.php?action=fetch&user_id=2
+[Fri Feb 13 05:56:28 2026] [::1]:53604 Closing
+[Fri Feb 13 05:56:28 2026] [::1]:53610 Accepted
+[Fri Feb 13 05:56:28 2026] [MOCK SMS] To: +15551234567 | Body: New message from John Doe: Hello Doctor via New Chat!...
+[Fri Feb 13 05:56:28 2026] [MOCK EMAIL] To: doctor@clinic.com | Subject: New Message from John Doe | Body: New message from John Doe: Hello Doctor via New Chat!...
+[Fri Feb 13 05:56:28 2026] [::1]:53610 [200]: POST /chat.php?action=send
+[Fri Feb 13 05:56:28 2026] [::1]:53610 Closing
+[Fri Feb 13 05:56:28 2026] [::1]:53612 Accepted
+[Fri Feb 13 05:56:28 2026] [::1]:53612 [200]: GET /chat.php?action=fetch&user_id=2
+[Fri Feb 13 05:56:28 2026] [::1]:53612 Closing
