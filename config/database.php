@@ -116,6 +116,10 @@ if ($use_sqlite) {
             );
         ");
 
+        // Performance Indexes
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_appointments_patient_date ON appointments(patient_id, appointment_date)");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_appointments_doctor_date ON appointments(doctor_id, appointment_date)");
+
 
     } catch (PDOException $e) {
         die("SQLite connection failed: " . $e->getMessage());
