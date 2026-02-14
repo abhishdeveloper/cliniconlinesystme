@@ -24,6 +24,39 @@ try {
             echo "Column 'specialty' added to MySQL database.\n";
         }
     }
+
+    // Index for Patient Dashboard
+    if ($driver === 'sqlite') {
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_appointments_patient_date ON appointments(patient_id, appointment_date)");
+        echo "Index 'idx_appointments_patient_date' created/checked (SQLite).\n";
+    } else {
+        // MySQL check
+        $stmt = $pdo->prepare("SHOW INDEX FROM appointments WHERE Key_name = 'idx_appointments_patient_date'");
+        $stmt->execute();
+        if (!$stmt->fetch()) {
+             $pdo->exec("CREATE INDEX idx_appointments_patient_date ON appointments(patient_id, appointment_date)");
+             echo "Index 'idx_appointments_patient_date' created (MySQL).\n";
+        } else {
+             echo "Index 'idx_appointments_patient_date' already exists (MySQL).\n";
+        }
+    }
+
+    // Index for Doctor Dashboard
+    if ($driver === 'sqlite') {
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_appointments_doctor_date ON appointments(doctor_id, appointment_date)");
+        echo "Index 'idx_appointments_doctor_date' created/checked (SQLite).\n";
+    } else {
+         // MySQL check
+        $stmt = $pdo->prepare("SHOW INDEX FROM appointments WHERE Key_name = 'idx_appointments_doctor_date'");
+        $stmt->execute();
+        if (!$stmt->fetch()) {
+             $pdo->exec("CREATE INDEX idx_appointments_doctor_date ON appointments(doctor_id, appointment_date)");
+             echo "Index 'idx_appointments_doctor_date' created (MySQL).\n";
+        } else {
+             echo "Index 'idx_appointments_doctor_date' already exists (MySQL).\n";
+        }
+    }
+
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage() . "\n";
 }
