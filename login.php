@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } catch (PDOException $e) {
             // Log error in production, show generic message
-            $error = "System error: " . $e->getMessage();
+            error_log("System error: " . $e->getMessage()); $error = "An unexpected error occurred.";
         }
     }
 }

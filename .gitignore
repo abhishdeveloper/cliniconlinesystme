@@ -1,1 +1,4 @@
 clinic.db
+.env
+vendor/
+.DS_Store

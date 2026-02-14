@@ -32,8 +32,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_slots') {
     exit; // Stop script execution for AJAX - Crucial!
 }
 
+$csrf_token = generate_csrf_token();
+
 // Handle Cancellation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'cancel_appointment') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        setFlashMessage('danger', "Invalid CSRF Token", 'danger');
+        redirect('dashboard.php');
+    }
+
     $appt_id = $_POST['appointment_id'];
 
     try {
@@ -68,74 +75,83 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        setFlashMessage('danger', "Error cancelling appointment: " . $e->getMessage(), 'danger');
+        error_log("Error cancelling appointment: " . $e->getMessage()); setFlashMessage('danger', "An unexpected error occurred.", 'danger');
     }
     redirect('dashboard.php');
 }
 
 // Handle Booking
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'book_appointment') {
-    $doctor_id = $_POST['doctor_id'];
-    $slot_id = $_POST['slot_id'];
-    $notes = trim($_POST['notes']);
-
-    if (empty($doctor_id) || empty($slot_id)) {
-        setFlashMessage('danger', "Please select a doctor and a time slot.", 'danger');
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        setFlashMessage('danger', "Invalid CSRF Token", 'danger');
     } else {
-        try {
-            $pdo->beginTransaction();
+        $doctor_id = $_POST['doctor_id'];
+        $slot_id = $_POST['slot_id'];
+        $notes = trim($_POST['notes']);
 
-            // 1. Verify Slot is still open (row locking if possible, usually fine for small scale)
-            $check = $pdo->prepare("SELECT slot_datetime FROM appointment_slots WHERE id = ? AND is_booked = 0");
-            $check->execute([$slot_id]);
-            $slot = $check->fetch();
+        if (empty($doctor_id) || empty($slot_id)) {
+            setFlashMessage('danger', "Please select a doctor and a time slot.", 'danger');
+        } else {
+            try {
+                $pdo->beginTransaction();
 
-            if (!$slot) {
+                // 1. Verify Slot is still open (row locking if possible, usually fine for small scale)
+                $check = $pdo->prepare("SELECT slot_datetime FROM appointment_slots WHERE id = ? AND is_booked = 0");
+                $check->execute([$slot_id]);
+                $slot = $check->fetch();
+
+                if (!$slot) {
+                    $pdo->rollBack();
+                    setFlashMessage('danger', "Sorry, this slot was just taken. Please choose another.", 'danger');
+                } else {
+                    // 2. Mark Slot as Booked
+                    $update = $pdo->prepare("UPDATE appointment_slots SET is_booked = 1 WHERE id = ?");
+                    $update->execute([$slot_id]);
+
+                    // 3. Create Appointment Record
+                    $stmt = $pdo->prepare("INSERT INTO appointments (patient_id, doctor_id, appointment_date, status, notes, slot_id) VALUES (?, ?, ?, 'pending', ?, ?)");
+                    $stmt->execute([$_SESSION['user_id'], $doctor_id, $slot['slot_datetime'], $notes, $slot_id]);
+
+                    $pdo->commit();
+
+                    // 4. Send Notifications
+                    // Get Doctor Email/Phone
+                    $doc_stmt = $pdo->prepare("SELECT email, phone, name FROM users WHERE id = ?");
+                    $doc_stmt->execute([$doctor_id]);
+                    $doctor = $doc_stmt->fetch();
+
+                    // Get Patient Email/Phone (Current User)
+                    $pat_stmt = $pdo->prepare("SELECT email, phone, name FROM users WHERE id = ?");
+                    $pat_stmt->execute([$_SESSION['user_id']]);
+                    $patient = $pat_stmt->fetch();
+
+                    $appt_time = date('F j, Y g:i A', strtotime($slot['slot_datetime']));
+
+                    // Notify Patient
+                    $msg_pat = "Your appointment with Dr. {$doctor['name']} on $appt_time is confirmed.";
+
+                    if (!empty($patient['phone'])) {
+                        sendSMS($patient['phone'], $msg_pat);
+                    }
+
+                    sendEmail($patient['email'], "Appointment Confirmed", $msg_pat);
+
+                    // Notify Doctor
+                    $msg_doc = "New appointment: {$patient['name']} on $appt_time.";
+
+                    if (!empty($doctor['phone'])) {
+                        sendSMS($doctor['phone'], $msg_doc);
+                    }
+
+                    sendEmail($doctor['email'], "New Appointment Request", $msg_doc);
+
+                    setFlashMessage('success', "Appointment booked successfully! Confirmation sent.", 'success');
+                    redirect('dashboard.php');
+                }
+            } catch (PDOException $e) {
                 $pdo->rollBack();
-                setFlashMessage('danger', "Sorry, this slot was just taken. Please choose another.", 'danger');
-            } else {
-                // 2. Mark Slot as Booked
-                $update = $pdo->prepare("UPDATE appointment_slots SET is_booked = 1 WHERE id = ?");
-                $update->execute([$slot_id]);
-
-                // 3. Create Appointment Record
-                $stmt = $pdo->prepare("INSERT INTO appointments (patient_id, doctor_id, appointment_date, status, notes, slot_id) VALUES (?, ?, ?, 'pending', ?, ?)");
-                $stmt->execute([$_SESSION['user_id'], $doctor_id, $slot['slot_datetime'], $notes, $slot_id]);
-
-                $pdo->commit();
-
-                // 4. Send Notifications
-                // Get Doctor Email/Phone
-                $doc_stmt = $pdo->prepare("SELECT email, phone, name FROM users WHERE id = ?");
-                $doc_stmt->execute([$doctor_id]);
-                $doctor = $doc_stmt->fetch();
-
-                // Get Patient Email/Phone (Current User)
-                $pat_stmt = $pdo->prepare("SELECT email, phone, name FROM users WHERE id = ?");
-                $pat_stmt->execute([$_SESSION['user_id']]);
-                $patient = $pat_stmt->fetch();
-
-                $appt_time = date('F j, Y g:i A', strtotime($slot['slot_datetime']));
-
-                // Notify Patient
-                $msg_pat = "Your appointment with Dr. {$doctor['name']} on $appt_time is confirmed.";
-                // Pass dummy phone if null for testing
-                $pat_phone = $patient['phone'] ?? '+15550000000';
-                sendSMS($pat_phone, $msg_pat);
-                sendEmail($patient['email'], "Appointment Confirmed", $msg_pat);
-
-                // Notify Doctor
-                $msg_doc = "New appointment: {$patient['name']} on $appt_time.";
-                $doc_phone = $doctor['phone'] ?? '+15550000000';
-                sendSMS($doc_phone, $msg_doc);
-                sendEmail($doctor['email'], "New Appointment Request", $msg_doc);
-
-                setFlashMessage('success', "Appointment booked successfully! Confirmation sent.", 'success');
-                redirect('dashboard.php');
+                error_log("Error booking appointment: " . $e->getMessage()); setFlashMessage('danger', "An unexpected error occurred.", 'danger');
             }
-        } catch (PDOException $e) {
-            $pdo->rollBack();
-            setFlashMessage('danger', "Error booking appointment: " . $e->getMessage(), 'danger');
         }
     }
 }
@@ -159,6 +175,7 @@ require_once '../includes/header.php';
                 <div class="card-body">
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="book_appointment">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">1. Select Doctor</label>
@@ -262,6 +279,7 @@ require_once '../includes/header.php';
                                             echo "<form method='POST' action='' style='display:inline;' onsubmit='return confirm(\"Are you sure you want to cancel this appointment?\");'>
                                                     <input type='hidden' name='action' value='cancel_appointment'>
                                                     <input type='hidden' name='appointment_id' value='{$appt['id']}'>
+                                                    <input type='hidden' name='csrf_token' value='" . htmlspecialchars($csrf_token) . "'>
                                                     <button type='submit' class='btn btn-sm btn-danger' title='Cancel Appointment'><i class='fas fa-times'></i></button>
                                                   </form>";
                                         }
@@ -278,7 +296,7 @@ require_once '../includes/header.php';
                                     echo "<tr><td colspan='4' class='text-center py-4 text-muted'>No appointments found. Book one now!</td></tr>";
                                 }
                                 } catch (PDOException $e) {
-                                    echo "<tr><td colspan='4' class='text-danger'>Error: " . $e->getMessage() . "</td></tr>";
+                                    error_log("Error: " . $e->getMessage()); echo "<tr><td colspan='4' class='text-danger'>An unexpected error occurred.</td></tr>";
                                 }
                                 ?>
                             </tbody>

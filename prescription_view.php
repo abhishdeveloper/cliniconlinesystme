@@ -15,7 +15,7 @@ $prescription_id = $_GET['id'];
 // Fetch Prescription Data with Doctor and Patient Info
 $stmt = $pdo->prepare("
     SELECT p.*,
-           u_pat.name AS patient_name, u_pat.email AS patient_email, u_pat.phone AS patient_phone,
+           u_pat.name AS patient_name, u_pat.email AS patient_email, u_pat.phone AS patient_phone, u_pat.prakruti,
            u_doc.name AS doctor_name, u_doc.email AS doctor_email,
            a.appointment_date
     FROM prescriptions p
@@ -89,13 +89,19 @@ $medicines = json_decode($rx['medicines_json'], true);
         <!-- Patient Details -->
         <div class="rx-details row mb-4">
             <div class="col-md-6">
-                <strong>Patient Name:</strong> <?php echo htmlspecialchars($rx['patient_name']); ?><br>
+                <h5 class="border-bottom pb-2">Patient Information</h5>
+                <strong>Name:</strong> <?php echo htmlspecialchars($rx['patient_name']); ?><br>
                 <strong>Date:</strong> <?php echo date('d M Y', strtotime($rx['appointment_date'])); ?><br>
-                <strong>Rx ID:</strong> #<?php echo $rx['id']; ?>
+                <strong>Rx ID:</strong> #<?php echo $rx['id']; ?><br>
+                <strong>Prakruti:</strong> <span class="badge bg-success"><?php echo htmlspecialchars($rx['prakruti'] ?? 'N/A'); ?></span>
             </div>
-            <div class="col-md-6 text-end">
-                <strong>Diagnosis / Prakriti:</strong><br>
-                <?php echo nl2br(htmlspecialchars($rx['diagnosis'])); ?>
+            <div class="col-md-6">
+                <h5 class="border-bottom pb-2">Diagnosis / Pariksha</h5>
+                <strong>Diagnosis:</strong> <?php echo nl2br(htmlspecialchars($rx['diagnosis'])); ?><br>
+                <?php if (!empty($rx['vikruti'])): ?><strong>Vikruti:</strong> <?php echo htmlspecialchars($rx['vikruti']); ?><br><?php endif; ?>
+                <?php if (!empty($rx['pulse'])): ?><strong>Pulse:</strong> <?php echo htmlspecialchars($rx['pulse']); ?><br><?php endif; ?>
+                <?php if (!empty($rx['tongue'])): ?><strong>Tongue:</strong> <?php echo htmlspecialchars($rx['tongue']); ?><br><?php endif; ?>
+                <?php if (!empty($rx['skin'])): ?><strong>Skin:</strong> <?php echo htmlspecialchars($rx['skin']); ?><br><?php endif; ?>
             </div>
         </div>
 
