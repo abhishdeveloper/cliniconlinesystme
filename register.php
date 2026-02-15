@@ -18,7 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm_password = $_POST['confirm_password'];
 
     // Basic Validation
-    if (empty($name) || empty($email) || empty($password) || empty($confirm_password)) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid CSRF token.";
+    } elseif (empty($name) || empty($email) || empty($password) || empty($confirm_password)) {
         $error = "Please fill in all required fields.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Invalid email format.";
@@ -64,6 +66,7 @@ require_once 'includes/header.php';
                     <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
                 <?php endif; ?>
                 <form method="POST" action="">
+                    <?php echo csrf_input(); ?>
                     <div class="mb-3">
                         <label for="name" class="form-label">Full Name *</label>
                         <input type="text" class="form-control" id="name" name="name" required value="<?php echo isset($name) ? htmlspecialchars($name) : ''; ?>">

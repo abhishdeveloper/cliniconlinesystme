@@ -20,7 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
 
-    if (empty($email) || empty($password)) {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid CSRF token.";
+    } elseif (empty($email) || empty($password)) {
         $error = "Please fill in all fields.";
     } else {
         try {
@@ -70,6 +72,7 @@ require_once 'includes/header.php';
                     <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
                 <?php endif; ?>
                 <form method="POST" action="">
+                    <?php echo csrf_input(); ?>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address</label>
                         <input type="email" class="form-control" id="email" name="email" required>
