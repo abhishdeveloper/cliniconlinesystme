@@ -99,7 +99,12 @@ require_once '../includes/header.php';
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control" required>
+                            <div class="input-group">
+                                <input type="password" name="password" class="form-control" required>
+                                <button class="btn btn-outline-secondary toggle-password" type="button" aria-label="Show password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Role</label>
