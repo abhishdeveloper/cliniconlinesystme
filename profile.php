@@ -166,17 +166,32 @@ require_once 'includes/header.php';
 
                         <div class="mb-3">
                             <label class="form-label">Current Password</label>
-                            <input type="password" name="current_password" class="form-control" required>
+                            <div class="input-group">
+                                <input type="password" name="current_password" class="form-control" required>
+                                <button class="btn btn-outline-secondary toggle-password" type="button" aria-label="Show password">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">New Password</label>
-                                <input type="password" name="new_password" class="form-control" required minlength="6">
+                                <div class="input-group">
+                                    <input type="password" name="new_password" class="form-control" required minlength="6">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" aria-label="Show password">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Confirm New Password</label>
-                                <input type="password" name="confirm_password" class="form-control" required minlength="6">
+                                <div class="input-group">
+                                    <input type="password" name="confirm_password" class="form-control" required minlength="6">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" aria-label="Show password">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
