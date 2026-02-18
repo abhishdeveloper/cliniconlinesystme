@@ -24,7 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         setFlashMessage('success', "Schedule added for $day!", 'success');
         redirect('schedule.php');
     } catch (PDOException $e) {
-        $error = "Error adding schedule: " . $e->getMessage();
+        error_log("Add schedule error: " . $e->getMessage());
+        $error = "An unexpected error occurred.";
     }
 }
 
@@ -74,7 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         redirect('schedule.php');
 
     } catch (PDOException $e) {
-        $error = "Error generating slots: " . $e->getMessage();
+        error_log("Generate slots error: " . $e->getMessage());
+        $error = "An unexpected error occurred.";
     }
 }
 

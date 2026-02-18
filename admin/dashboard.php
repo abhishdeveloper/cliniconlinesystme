@@ -43,7 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 }
             }
         } catch (PDOException $e) {
-            $error = "Database error: " . $e->getMessage();
+            error_log("Admin user add error: " . $e->getMessage());
+            $error = "An unexpected error occurred.";
         }
     }
 }

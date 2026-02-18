@@ -21,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         setFlashMessage('success', "Appointment updated successfully!", 'success');
         redirect('dashboard.php');
     } catch (PDOException $e) {
-        setFlashMessage('danger', "Error updating appointment: " . $e->getMessage(), 'danger');
+        error_log("Doctor status update error: " . $e->getMessage());
+        setFlashMessage('danger', "An unexpected error occurred.", 'danger');
     }
 }
 
@@ -89,7 +90,8 @@ require_once '../includes/header.php';
                             echo "<tr><td colspan='5' class='text-center'>No appointments found.</td></tr>";
                         }
                     } catch (PDOException $e) {
-                        echo "<tr><td colspan='5' class='text-danger'>Error loading appointments: " . $e->getMessage() . "</td></tr>";
+                        error_log("Doctor appointments error: " . $e->getMessage());
+                        echo "<tr><td colspan='5' class='text-danger'>An error occurred while loading appointments.</td></tr>";
                     }
                     ?>
                 </tbody>
