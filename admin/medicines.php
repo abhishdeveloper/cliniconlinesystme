@@ -30,7 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $error = "Failed to add medicine.";
             }
         } catch (PDOException $e) {
-            $error = "Database error: " . $e->getMessage();
+            error_log("Add medicine error: " . $e->getMessage());
+            $error = "An unexpected error occurred.";
         }
     }
 }
@@ -43,7 +44,8 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         setFlashMessage('success', "Medicine deleted successfully!", 'success');
         redirect('medicines.php');
     } catch (PDOException $e) {
-        setFlashMessage('danger', "Error deleting medicine: " . $e->getMessage(), 'danger');
+        error_log("Delete medicine error: " . $e->getMessage());
+        setFlashMessage('danger', "An unexpected error occurred.", 'danger');
     }
 }
 

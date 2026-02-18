@@ -17,7 +17,8 @@ try {
     $stmt->execute([$user_id]);
     $user = $stmt->fetch();
 } catch (PDOException $e) {
-    die("Error loading profile: " . $e->getMessage());
+    error_log("Error loading profile: " . $e->getMessage());
+    die("An unexpected error occurred.");
 }
 
 // Handle Profile Update
@@ -57,7 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $user = $stmt->fetch();
             }
         } catch (PDOException $e) {
-            $error = "Database error: " . $e->getMessage();
+            error_log("Profile update error: " . $e->getMessage());
+            $error = "An unexpected error occurred.";
         }
     }
 }
@@ -83,7 +85,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $stmt->execute([$hashed_password, $user_id]);
                 $success = "Password changed successfully!";
             } catch (PDOException $e) {
-                $error = "Error changing password: " . $e->getMessage();
+                error_log("Password change error: " . $e->getMessage());
+                $error = "An unexpected error occurred.";
             }
         } else {
             $error = "Incorrect current password.";
