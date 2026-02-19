@@ -22,12 +22,16 @@ try {
 
 // Handle Profile Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $phone = trim($_POST['phone']);
-    $specialty = isset($_POST['specialty']) ? trim($_POST['specialty']) : null;
+    // Verify CSRF Token
+    if (!isset($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
+        $error = "Invalid CSRF token.";
+    } else {
+        $name = trim($_POST['name']);
+        $email = trim($_POST['email']);
+        $phone = trim($_POST['phone']);
+        $specialty = isset($_POST['specialty']) ? trim($_POST['specialty']) : null;
 
-    if (empty($name) || empty($email)) {
+        if (empty($name) || empty($email)) {
         $error = "Name and Email are required.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Invalid email format.";
@@ -60,15 +64,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $error = "Database error: " . $e->getMessage();
         }
     }
+    }
 }
 
 // Handle Password Change
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'change_password') {
-    $current_password = $_POST['current_password'];
-    $new_password = $_POST['new_password'];
-    $confirm_password = $_POST['confirm_password'];
+    // Verify CSRF Token
+    if (!isset($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
+        $error = "Invalid CSRF token.";
+    } else {
+        $current_password = $_POST['current_password'];
+        $new_password = $_POST['new_password'];
+        $confirm_password = $_POST['confirm_password'];
 
-    if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
+        if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
         $error = "All password fields are required.";
     } elseif ($new_password !== $confirm_password) {
         $error = "New passwords do not match.";
@@ -88,6 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         } else {
             $error = "Incorrect current password.";
         }
+    }
     }
 }
 
@@ -120,6 +130,7 @@ require_once 'includes/header.php';
                 </div>
                 <div class="card-body">
                     <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                         <input type="hidden" name="action" value="update_profile">
 
                         <div class="mb-3">
@@ -162,6 +173,7 @@ require_once 'includes/header.php';
                 </div>
                 <div class="card-body">
                     <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                         <input type="hidden" name="action" value="change_password">
 
                         <div class="mb-3">

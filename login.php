@@ -17,10 +17,14 @@ if (isLoggedIn()) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
+    // Verify CSRF Token
+    if (!isset($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
+        $error = "Invalid CSRF token. Please refresh the page and try again.";
+    } else {
+        $email = trim($_POST['email']);
+        $password = $_POST['password'];
 
-    if (empty($email) || empty($password)) {
+        if (empty($email) || empty($password)) {
         $error = "Please fill in all fields.";
     } else {
         try {
@@ -53,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "System error: " . $e->getMessage();
         }
     }
+    }
 }
 
 // Now include the header which starts output
@@ -70,6 +75,7 @@ require_once 'includes/header.php';
                     <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
                 <?php endif; ?>
                 <form method="POST" action="">
+                    <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address</label>
                         <input type="email" class="form-control" id="email" name="email" required>
