@@ -68,7 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        setFlashMessage('danger', "Error cancelling appointment: " . $e->getMessage(), 'danger');
+        error_log("Error cancelling appointment: " . $e->getMessage());
+        setFlashMessage('danger', "An error occurred while cancelling the appointment.", 'danger');
     }
     redirect('dashboard.php');
 }
@@ -135,7 +136,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             }
         } catch (PDOException $e) {
             $pdo->rollBack();
-            setFlashMessage('danger', "Error booking appointment: " . $e->getMessage(), 'danger');
+            error_log("Error booking appointment: " . $e->getMessage());
+            setFlashMessage('danger', "An error occurred while booking the appointment.", 'danger');
         }
     }
 }
@@ -278,7 +280,8 @@ require_once '../includes/header.php';
                                     echo "<tr><td colspan='4' class='text-center py-4 text-muted'>No appointments found. Book one now!</td></tr>";
                                 }
                                 } catch (PDOException $e) {
-                                    echo "<tr><td colspan='4' class='text-danger'>Error: " . $e->getMessage() . "</td></tr>";
+                                    error_log("Error loading appointments: " . $e->getMessage());
+                                    echo "<tr><td colspan='4' class='text-danger'>Error loading appointments.</td></tr>";
                                 }
                                 ?>
                             </tbody>
