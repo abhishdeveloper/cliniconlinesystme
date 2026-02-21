@@ -11,6 +11,9 @@ $user_id = $_SESSION['user_id'];
 $error = '';
 $success = '';
 
+// Generate CSRF Token for forms
+$csrf_token = generate_csrf_token();
+
 // Fetch current user data
 try {
     $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
@@ -22,71 +25,81 @@ try {
 
 // Handle Profile Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $phone = trim($_POST['phone']);
-    $specialty = isset($_POST['specialty']) ? trim($_POST['specialty']) : null;
-
-    if (empty($name) || empty($email)) {
-        $error = "Name and Email are required.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = "Invalid email format.";
+    // CSRF Check
+    if (!isset($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
+        $error = "Invalid CSRF token.";
     } else {
-        try {
-            // Check if email belongs to another user
-            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
-            $stmt->execute([$email, $user_id]);
-            if ($stmt->fetch()) {
-                $error = "Email is already taken by another user.";
-            } else {
-                if ($user['role'] === 'doctor') {
-                    $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, phone = ?, specialty = ? WHERE id = ?");
-                    $stmt->execute([$name, $email, $phone, $specialty, $user_id]);
+        $name = trim($_POST['name']);
+        $email = trim($_POST['email']);
+        $phone = trim($_POST['phone']);
+        $specialty = isset($_POST['specialty']) ? trim($_POST['specialty']) : null;
+
+        if (empty($name) || empty($email)) {
+            $error = "Name and Email are required.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = "Invalid email format.";
+        } else {
+            try {
+                // Check if email belongs to another user
+                $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+                $stmt->execute([$email, $user_id]);
+                if ($stmt->fetch()) {
+                    $error = "Email is already taken by another user.";
                 } else {
-                    $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ?");
-                    $stmt->execute([$name, $email, $phone, $user_id]);
+                    if ($user['role'] === 'doctor') {
+                        $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, phone = ?, specialty = ? WHERE id = ?");
+                        $stmt->execute([$name, $email, $phone, $specialty, $user_id]);
+                    } else {
+                        $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ?");
+                        $stmt->execute([$name, $email, $phone, $user_id]);
+                    }
+
+                    // Update Session Name if changed
+                    $_SESSION['user_name'] = $name;
+
+                    $success = "Profile updated successfully!";
+                    // Refresh user data
+                    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+                    $stmt->execute([$user_id]);
+                    $user = $stmt->fetch();
                 }
-
-                // Update Session Name if changed
-                $_SESSION['user_name'] = $name;
-
-                $success = "Profile updated successfully!";
-                // Refresh user data
-                $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-                $stmt->execute([$user_id]);
-                $user = $stmt->fetch();
+            } catch (PDOException $e) {
+                $error = "Database error: " . $e->getMessage();
             }
-        } catch (PDOException $e) {
-            $error = "Database error: " . $e->getMessage();
         }
     }
 }
 
 // Handle Password Change
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'change_password') {
-    $current_password = $_POST['current_password'];
-    $new_password = $_POST['new_password'];
-    $confirm_password = $_POST['confirm_password'];
-
-    if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
-        $error = "All password fields are required.";
-    } elseif ($new_password !== $confirm_password) {
-        $error = "New passwords do not match.";
-    } elseif (strlen($new_password) < 6) {
-        $error = "New password must be at least 6 characters.";
+    // CSRF Check
+    if (!isset($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
+        $error = "Invalid CSRF token.";
     } else {
-        // Verify current password
-        if (password_verify($current_password, $user['password'])) {
-            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-            try {
-                $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
-                $stmt->execute([$hashed_password, $user_id]);
-                $success = "Password changed successfully!";
-            } catch (PDOException $e) {
-                $error = "Error changing password: " . $e->getMessage();
-            }
+        $current_password = $_POST['current_password'];
+        $new_password = $_POST['new_password'];
+        $confirm_password = $_POST['confirm_password'];
+
+        if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
+            $error = "All password fields are required.";
+        } elseif ($new_password !== $confirm_password) {
+            $error = "New passwords do not match.";
+        } elseif (strlen($new_password) < 6) {
+            $error = "New password must be at least 6 characters.";
         } else {
-            $error = "Incorrect current password.";
+            // Verify current password
+            if (password_verify($current_password, $user['password'])) {
+                $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+                try {
+                    $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+                    $stmt->execute([$hashed_password, $user_id]);
+                    $success = "Password changed successfully!";
+                } catch (PDOException $e) {
+                    $error = "Error changing password: " . $e->getMessage();
+                }
+            } else {
+                $error = "Incorrect current password.";
+            }
         }
     }
 }
@@ -121,6 +134,7 @@ require_once 'includes/header.php';
                 <div class="card-body">
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="update_profile">
+                        <input type="hidden" name="csrf_token" value="<?php echo escape($csrf_token); ?>">
 
                         <div class="mb-3">
                             <label class="form-label">Full Name</label>
@@ -163,6 +177,7 @@ require_once 'includes/header.php';
                 <div class="card-body">
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="change_password">
+                        <input type="hidden" name="csrf_token" value="<?php echo escape($csrf_token); ?>">
 
                         <div class="mb-3">
                             <label class="form-label">Current Password</label>
