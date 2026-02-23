@@ -1,0 +1,79 @@
+[Mon Feb 23 03:57:55 2026] PHP 8.3.6 Development Server (http://localhost:8080) started
+[Mon Feb 23 03:58:30 2026] [::1]:41390 Accepted
+[Mon Feb 23 03:58:30 2026] [::1]:41390 [200]: GET /login.php
+[Mon Feb 23 03:58:30 2026] [::1]:41390 Closing
+[Mon Feb 23 03:58:30 2026] [::1]:41394 Accepted
+[Mon Feb 23 03:58:30 2026] [::1]:41410 Accepted
+[Mon Feb 23 03:58:30 2026] [::1]:41394 [200]: GET /assets/css/style.css
+[Mon Feb 23 03:58:30 2026] [::1]:41394 Closing
+[Mon Feb 23 03:58:30 2026] [::1]:41410 [200]: GET /assets/js/script.js
+[Mon Feb 23 03:58:30 2026] [::1]:41410 Closing
+[Mon Feb 23 03:58:31 2026] [::1]:41414 Accepted
+[Mon Feb 23 03:58:31 2026] [::1]:41414 [302]: POST /login.php
+[Mon Feb 23 03:58:31 2026] [::1]:41414 Closing
+[Mon Feb 23 03:58:31 2026] [::1]:41430 Accepted
+[Mon Feb 23 03:58:31 2026] [::1]:41430 [200]: GET /admin/dashboard.php
+[Mon Feb 23 03:58:31 2026] [::1]:41430 Closing
+[Mon Feb 23 03:58:31 2026] [::1]:41440 Accepted
+[Mon Feb 23 03:58:31 2026] [::1]:41446 Accepted
+[Mon Feb 23 03:58:31 2026] [::1]:41452 Accepted
+[Mon Feb 23 03:58:31 2026] [::1]:41440 [200]: GET /assets/css/style.css
+[Mon Feb 23 03:58:31 2026] [::1]:41440 Closing
+[Mon Feb 23 03:58:31 2026] [::1]:41446 [200]: GET /admin/prescriptions.php
+[Mon Feb 23 03:58:31 2026] [::1]:41446 Closing
+[Mon Feb 23 03:58:31 2026] [::1]:41452 [200]: GET /assets/js/script.js
+[Mon Feb 23 03:58:31 2026] [::1]:41452 Closing
+[Mon Feb 23 03:58:31 2026] [::1]:41462 Accepted
+[Mon Feb 23 03:58:31 2026] [::1]:41478 Accepted
+[Mon Feb 23 03:58:31 2026] [::1]:41462 [200]: GET /assets/css/style.css
+[Mon Feb 23 03:58:31 2026] [::1]:41462 Closing
+[Mon Feb 23 03:58:31 2026] [::1]:41478 [200]: GET /assets/js/script.js
+[Mon Feb 23 03:58:31 2026] [::1]:41478 Closing
+[Mon Feb 23 03:58:31 2026] [::1]:41486 Accepted
+[Mon Feb 23 03:58:31 2026] [::1]:41486 [200]: GET /admin/prescriptions.php?page=2
+[Mon Feb 23 03:58:31 2026] [::1]:41486 Closing
+[Mon Feb 23 03:58:31 2026] [::1]:41496 Accepted
+[Mon Feb 23 03:58:31 2026] [::1]:41500 Accepted
+[Mon Feb 23 03:58:31 2026] [::1]:41496 [200]: GET /assets/css/style.css
+[Mon Feb 23 03:58:31 2026] [::1]:41500 [200]: GET /assets/js/script.js
+[Mon Feb 23 03:58:31 2026] [::1]:41496 Closing
+[Mon Feb 23 03:58:31 2026] [::1]:41500 Closing
+[Mon Feb 23 03:59:08 2026] [::1]:37592 Accepted
+[Mon Feb 23 03:59:08 2026] [::1]:37592 [200]: GET /login.php
+[Mon Feb 23 03:59:08 2026] [::1]:37592 Closing
+[Mon Feb 23 03:59:08 2026] [::1]:37598 Accepted
+[Mon Feb 23 03:59:08 2026] [::1]:37606 Accepted
+[Mon Feb 23 03:59:08 2026] [::1]:37598 [200]: GET /assets/css/style.css
+[Mon Feb 23 03:59:08 2026] [::1]:37606 [200]: GET /assets/js/script.js
+[Mon Feb 23 03:59:08 2026] [::1]:37598 Closing
+[Mon Feb 23 03:59:08 2026] [::1]:37606 Closing
+[Mon Feb 23 03:59:08 2026] [::1]:37608 Accepted
+[Mon Feb 23 03:59:08 2026] [::1]:37608 [302]: POST /login.php
+[Mon Feb 23 03:59:08 2026] [::1]:37608 Closing
+[Mon Feb 23 03:59:08 2026] [::1]:37620 Accepted
+[Mon Feb 23 03:59:08 2026] [::1]:37620 [200]: GET /admin/dashboard.php
+[Mon Feb 23 03:59:08 2026] [::1]:37620 Closing
+[Mon Feb 23 03:59:08 2026] [::1]:37626 Accepted
+[Mon Feb 23 03:59:08 2026] [::1]:37634 Accepted
+[Mon Feb 23 03:59:08 2026] [::1]:37626 [200]: GET /assets/css/style.css
+[Mon Feb 23 03:59:08 2026] [::1]:37634 [200]: GET /assets/js/script.js
+[Mon Feb 23 03:59:08 2026] [::1]:37626 Closing
+[Mon Feb 23 03:59:08 2026] [::1]:37634 Closing
+[Mon Feb 23 03:59:08 2026] [::1]:37640 Accepted
+[Mon Feb 23 03:59:08 2026] [::1]:37640 [200]: GET /admin/prescriptions.php
+[Mon Feb 23 03:59:08 2026] [::1]:37640 Closing
+[Mon Feb 23 03:59:08 2026] [::1]:37656 Accepted
+[Mon Feb 23 03:59:08 2026] [::1]:37660 Accepted
+[Mon Feb 23 03:59:08 2026] [::1]:37656 [200]: GET /assets/css/style.css
+[Mon Feb 23 03:59:08 2026] [::1]:37660 [200]: GET /assets/js/script.js
+[Mon Feb 23 03:59:08 2026] [::1]:37656 Closing
+[Mon Feb 23 03:59:08 2026] [::1]:37660 Closing
+[Mon Feb 23 03:59:09 2026] [::1]:37672 Accepted
+[Mon Feb 23 03:59:09 2026] [::1]:37672 [200]: GET /admin/prescriptions.php?page=2
+[Mon Feb 23 03:59:09 2026] [::1]:37672 Closing
+[Mon Feb 23 03:59:09 2026] [::1]:37682 Accepted
+[Mon Feb 23 03:59:09 2026] [::1]:37684 Accepted
+[Mon Feb 23 03:59:09 2026] [::1]:37682 [200]: GET /assets/css/style.css
+[Mon Feb 23 03:59:09 2026] [::1]:37684 [200]: GET /assets/js/script.js
+[Mon Feb 23 03:59:09 2026] [::1]:37682 Closing
+[Mon Feb 23 03:59:09 2026] [::1]:37684 Closing
