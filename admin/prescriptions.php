@@ -36,8 +36,20 @@ require_once '../includes/header.php';
                     </thead>
                     <tbody>
                         <?php
+                        // Pagination Setup
+                        $limit = 20;
+                        $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+                        if ($page < 1) $page = 1;
+                        $offset = ($page - 1) * $limit;
+
                         try {
-                            $stmt = $pdo->query("
+                            // Get Total Count
+                            $countStmt = $pdo->query("SELECT COUNT(*) FROM prescriptions");
+                            $total_rows = $countStmt->fetchColumn();
+                            $total_pages = ceil($total_rows / $limit);
+
+                            // Get Data with Limit and Offset
+                            $stmt = $pdo->prepare("
                                 SELECT p.id, p.created_at, p.diagnosis,
                                        u_pat.name AS patient_name, u_pat.email AS patient_email,
                                        u_doc.name AS doctor_name
@@ -45,7 +57,11 @@ require_once '../includes/header.php';
                                 JOIN users u_pat ON p.patient_id = u_pat.id
                                 JOIN users u_doc ON p.doctor_id = u_doc.id
                                 ORDER BY p.created_at DESC
+                                LIMIT :limit OFFSET :offset
                             ");
+                            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+                            $stmt->execute();
 
                             $prescriptions = $stmt->fetchAll();
 
@@ -75,6 +91,32 @@ require_once '../includes/header.php';
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination Controls -->
+            <?php if (isset($total_pages) && $total_pages > 1): ?>
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <!-- Previous -->
+                    <li class="page-item <?php echo ($page <= 1) ? 'disabled' : ''; ?>">
+                        <a class="page-link" href="?page=<?php echo $page - 1; ?>">Previous</a>
+                    </li>
+
+                    <!-- Page Numbers -->
+                    <?php
+                    $range = 2;
+                    for ($i = max(1, $page - $range); $i <= min($total_pages, $page + $range); $i++) {
+                        $active = ($i == $page) ? 'active' : '';
+                        echo "<li class='page-item $active'><a class='page-link' href='?page=$i'>$i</a></li>";
+                    }
+                    ?>
+
+                    <!-- Next -->
+                    <li class="page-item <?php echo ($page >= $total_pages) ? 'disabled' : ''; ?>">
+                        <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next</a>
+                    </li>
+                </ul>
+            </nav>
+            <?php endif; ?>
         </div>
     </div>
 </div>
