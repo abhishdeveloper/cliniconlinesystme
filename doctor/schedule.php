@@ -31,45 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // Handle Generating Slots from Template
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate_slots') {
     $days_ahead = 30; // Generate for next 30 days
-    $generated_count = 0;
 
     try {
-        // Get templates
-        $stmt = $pdo->prepare("SELECT * FROM doctor_schedules WHERE doctor_id = ?");
-        $stmt->execute([$_SESSION['user_id']]);
-        $templates = $stmt->fetchAll();
-
-        $today = new DateTime();
-
-        for ($i = 0; $i < $days_ahead; $i++) {
-            $current_date = clone $today;
-            $current_date->modify("+$i days");
-            $day_name = $current_date->format('l'); // e.g., "Monday"
-
-            foreach ($templates as $template) {
-                if ($template['day_of_week'] === $day_name) {
-                    $start = new DateTime($current_date->format('Y-m-d') . ' ' . $template['start_time']);
-                    $end = new DateTime($current_date->format('Y-m-d') . ' ' . $template['end_time']);
-                    $interval = new DateInterval('PT' . $template['slot_duration'] . 'M');
-
-                    while ($start < $end) {
-                        $slot_datetime = $start->format('Y-m-d H:i:s');
-
-                        // Check if slot exists
-                        $check = $pdo->prepare("SELECT id FROM appointment_slots WHERE doctor_id = ? AND slot_datetime = ?");
-                        $check->execute([$_SESSION['user_id'], $slot_datetime]);
-
-                        if (!$check->fetch()) {
-                            $insert = $pdo->prepare("INSERT INTO appointment_slots (doctor_id, slot_datetime) VALUES (?, ?)");
-                            $insert->execute([$_SESSION['user_id'], $slot_datetime]);
-                            $generated_count++;
-                        }
-
-                        $start->add($interval);
-                    }
-                }
-            }
-        }
+        $generated_count = generateDoctorSlots($pdo, $_SESSION['user_id'], $days_ahead);
         setFlashMessage('success', "Generated $generated_count slots for the next 30 days!", 'success');
         redirect('schedule.php');
 
