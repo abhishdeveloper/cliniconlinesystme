@@ -13,6 +13,25 @@ try {
         } else {
             echo "Column 'specialty' already exists in SQLite database.\n";
         }
+
+        // Check for Indexes (SQLite)
+        $stmt = $pdo->query("PRAGMA index_list(appointments)");
+        $indexes = $stmt->fetchAll(PDO::FETCH_COLUMN, 1); // Column 1 is name
+
+        if (!in_array('idx_appointments_doctor_date', $indexes)) {
+            $pdo->exec("CREATE INDEX idx_appointments_doctor_date ON appointments(doctor_id, appointment_date)");
+            echo "Index 'idx_appointments_doctor_date' created in SQLite database.\n";
+        } else {
+             echo "Index 'idx_appointments_doctor_date' already exists in SQLite database.\n";
+        }
+
+        if (!in_array('idx_appointments_patient_date', $indexes)) {
+            $pdo->exec("CREATE INDEX idx_appointments_patient_date ON appointments(patient_id, appointment_date)");
+            echo "Index 'idx_appointments_patient_date' created in SQLite database.\n";
+        } else {
+             echo "Index 'idx_appointments_patient_date' already exists in SQLite database.\n";
+        }
+
     } else {
         // MySQL
         $stmt = $pdo->prepare("SHOW COLUMNS FROM users LIKE 'specialty'");
@@ -22,6 +41,25 @@ try {
         } else {
             $pdo->exec("ALTER TABLE users ADD COLUMN specialty VARCHAR(100) DEFAULT NULL AFTER role");
             echo "Column 'specialty' added to MySQL database.\n";
+        }
+
+        // Check for Indexes (MySQL)
+        $stmt = $pdo->prepare("SHOW INDEX FROM appointments WHERE Key_name = 'idx_appointments_doctor_date'");
+        $stmt->execute();
+        if ($stmt->fetch()) {
+             echo "Index 'idx_appointments_doctor_date' already exists in MySQL database.\n";
+        } else {
+             $pdo->exec("CREATE INDEX idx_appointments_doctor_date ON appointments(doctor_id, appointment_date)");
+             echo "Index 'idx_appointments_doctor_date' created in MySQL database.\n";
+        }
+
+        $stmt = $pdo->prepare("SHOW INDEX FROM appointments WHERE Key_name = 'idx_appointments_patient_date'");
+        $stmt->execute();
+        if ($stmt->fetch()) {
+             echo "Index 'idx_appointments_patient_date' already exists in MySQL database.\n";
+        } else {
+             $pdo->exec("CREATE INDEX idx_appointments_patient_date ON appointments(patient_id, appointment_date)");
+             echo "Index 'idx_appointments_patient_date' created in MySQL database.\n";
         }
     }
 } catch (PDOException $e) {
