@@ -3,6 +3,9 @@
 require_once 'config/database.php';
 require_once 'includes/functions.php';
 
+// Generate CSRF token
+generate_csrf_token();
+
 // Check if already logged in
 if (isLoggedIn()) {
     if ($_SESSION['role'] === 'admin') {
@@ -17,6 +20,10 @@ if (isLoggedIn()) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        die("Invalid CSRF token.");
+    }
+
     $email = trim($_POST['email']);
     $password = $_POST['password'];
 
@@ -70,6 +77,7 @@ require_once 'includes/header.php';
                     <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
                 <?php endif; ?>
                 <form method="POST" action="">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address</label>
                         <input type="email" class="form-control" id="email" name="email" required>
