@@ -1,14 +1,41 @@
 <?php
-// Database Configuration
-$host = 'localhost';
-$dbname = 'clinic_db';
-$username = 'root';
-$password = '';
+// Load environment variables from .env file if it exists
+(function() {
+    $envFile = __DIR__ . '/../.env';
+    if (file_exists($envFile)) {
+        $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line) || strpos($line, '#') === 0) continue;
 
-// Check if we are in a testing environment or if SQLite is preferred
-$use_sqlite = true; // Set to true for local development without MySQL
+            if (strpos($line, '=') !== false) {
+                list($name, $value) = explode('=', $line, 2);
+                $name = trim($name);
+                $value = trim($value);
 
-if ($use_sqlite) {
+                // Basic quote handling
+                if (preg_match('/^"(.*)"$/', $value, $matches)) {
+                    $value = $matches[1];
+                } elseif (preg_match("/^'(.*)'$/", $value, $matches)) {
+                    $value = $matches[1];
+                }
+
+                if (getenv($name) === false) {
+                    putenv(sprintf('%s=%s', $name, $value));
+                    $_ENV[$name] = $value;
+                    $_SERVER[$name] = $value;
+                }
+            }
+        }
+    }
+})();
+
+// Determine connection type
+// Default to MySQL for shared hosting if not specified
+$connection = getenv('DB_CONNECTION') ?: 'mysql';
+
+if ($connection === 'sqlite') {
+    // SQLite Configuration
     try {
         $db_path = __DIR__ . '/../clinic.db';
         $pdo = new PDO("sqlite:$db_path");
@@ -98,6 +125,8 @@ if ($use_sqlite) {
                 FOREIGN KEY (doctor_id) REFERENCES users(id) ON DELETE SET NULL,
                 FOREIGN KEY (slot_id) REFERENCES appointment_slots(id) ON DELETE SET NULL
             );
+            CREATE INDEX IF NOT EXISTS idx_appointments_doctor_date ON appointments (doctor_id, appointment_date);
+            CREATE INDEX IF NOT EXISTS idx_appointments_patient_date ON appointments (patient_id, appointment_date);
         ");
 
         $pdo->exec("
@@ -121,12 +150,25 @@ if ($use_sqlite) {
         die("SQLite connection failed: " . $e->getMessage());
     }
 } else {
+    // MySQL Configuration
+    $host = getenv('DB_HOST') ?: 'localhost';
+    $dbname = getenv('DB_NAME') ?: 'clinic_db';
+    $username = getenv('DB_USER') ?: 'root';
+    $password = getenv('DB_PASS') ?: '';
+
+    // Allow skipping connection for testing purposes
+    if (getenv('DB_TEST_NO_CONNECT')) {
+        return;
+    }
+
     try {
         $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        die("Database connection failed: " . $e->getMessage());
+        // For production, log the error and show a generic message
+        error_log("Database connection failed: " . $e->getMessage());
+        die("Database connection failed. Please check your configuration.");
     }
 }
 ?>

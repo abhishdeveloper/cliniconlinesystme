@@ -13,37 +13,41 @@ $success = '';
 
 // Handle Add User
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_user') {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
-    $role = $_POST['role'];
-    $specialty = !empty($_POST['specialty']) ? trim($_POST['specialty']) : null;
-
-    if ($role !== 'doctor') {
-        $specialty = null;
-    }
-
-    if (empty($name) || empty($email) || empty($password) || empty($role)) {
-        $error = "All fields are required.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = "Invalid email format.";
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "Invalid CSRF token.";
     } else {
-        try {
-            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-            $stmt->execute([$email]);
-            if ($stmt->fetch()) {
-                $error = "Email already exists.";
-            } else {
-                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, specialty) VALUES (?, ?, ?, ?, ?)");
-                if ($stmt->execute([$name, $email, $hashed_password, $role, $specialty])) {
-                    $success = "User ($role) created successfully!";
+        $name = trim($_POST['name']);
+        $email = trim($_POST['email']);
+        $password = $_POST['password'];
+        $role = $_POST['role'];
+        $specialty = !empty($_POST['specialty']) ? trim($_POST['specialty']) : null;
+
+        if ($role !== 'doctor') {
+            $specialty = null;
+        }
+
+        if (empty($name) || empty($email) || empty($password) || empty($role)) {
+            $error = "All fields are required.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = "Invalid email format.";
+        } else {
+            try {
+                $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+                $stmt->execute([$email]);
+                if ($stmt->fetch()) {
+                    $error = "Email already exists.";
                 } else {
-                    $error = "Failed to create user.";
+                    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                    $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, specialty) VALUES (?, ?, ?, ?, ?)");
+                    if ($stmt->execute([$name, $email, $hashed_password, $role, $specialty])) {
+                        $success = "User ($role) created successfully!";
+                    } else {
+                        $error = "Failed to create user.";
+                    }
                 }
+            } catch (PDOException $e) {
+                error_log("Database error: " . $e->getMessage()); $error = "An unexpected error occurred.";
             }
-        } catch (PDOException $e) {
-            $error = "Database error: " . $e->getMessage();
         }
     }
 }
@@ -89,6 +93,7 @@ require_once '../includes/header.php';
                     <?php endif; ?>
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="add_user">
+                        <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                         <div class="mb-3">
                             <label class="form-label">Name</label>
                             <input type="text" name="name" class="form-control" required>

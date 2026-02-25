@@ -34,7 +34,7 @@ function sendSMS($to, $body) {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
     curl_setopt($ch, CURLOPT_USERPWD, "$sid:$token");
     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
@@ -44,6 +44,21 @@ function sendSMS($to, $body) {
     curl_close($ch);
 
     return ($http_code >= 200 && $http_code < 300);
+}
+
+/**
+ * Helper to send command and check response from SMTP server
+ * @param resource $socket SMTP socket
+ * @param string $response Expected response code
+ * @return bool True on success, False on failure
+ */
+function server_parse($socket, $response) {
+    $server_response = '';
+    while (substr($server_response, 3, 1) != ' ') {
+        if (!($server_response = fgets($socket, 256))) return false;
+    }
+    if (!(substr($server_response, 0, 3) == $response)) return false;
+    return true;
 }
 
 /**
@@ -79,16 +94,6 @@ function sendEmail($to, $subject, $message) {
     try {
         $socket = fsockopen($smtp_host, $smtp_port, $errno, $errstr, 15);
         if (!$socket) return false;
-
-        // Helper to send command and check response
-        function server_parse($socket, $response) {
-            $server_response = '';
-            while (substr($server_response, 3, 1) != ' ') {
-                if (!($server_response = fgets($socket, 256))) return false;
-            }
-            if (!(substr($server_response, 0, 3) == $response)) return false;
-            return true;
-        }
 
         server_parse($socket, '220');
         fwrite($socket, "EHLO $smtp_host\r\n");

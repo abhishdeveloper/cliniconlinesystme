@@ -12,9 +12,12 @@ require_once 'includes/header.php';
         <?php if (isLoggedIn()): ?>
             <?php
                 $dashboardLink = '#';
-                if ($_SESSION['role'] === 'admin') $dashboardLink = '/admin/dashboard.php';
-                elseif ($_SESSION['role'] === 'doctor') $dashboardLink = '/doctor/dashboard.php';
-                else $dashboardLink = '/patient/dashboard.php';
+                if (isset($_SESSION['role'])) {
+                    if ($_SESSION['role'] === 'superadmin') $dashboardLink = '/superadmin/dashboard.php';
+                    elseif ($_SESSION['role'] === 'admin') $dashboardLink = '/admin/dashboard.php';
+                    elseif ($_SESSION['role'] === 'doctor') $dashboardLink = '/doctor/dashboard.php';
+                    else $dashboardLink = '/patient/dashboard.php';
+                }
             ?>
             <a href="<?php echo $dashboardLink; ?>" class="btn btn-primary btn-lg" type="button">Go to Dashboard</a>
         <?php else: ?>
