@@ -41,6 +41,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
         $today = new DateTime();
 
+        // Optimization: Fetch all existing slots in one go to avoid N+1 queries
+        $range_start = $today->format('Y-m-d 00:00:00');
+        $range_end = (clone $today)->modify("+" . $days_ahead . " days")->format('Y-m-d 23:59:59');
+
+        $existing_slots = [];
+        $stmt_check = $pdo->prepare("SELECT slot_datetime FROM appointment_slots WHERE doctor_id = ? AND slot_datetime BETWEEN ? AND ?");
+        $stmt_check->execute([$_SESSION['user_id'], $range_start, $range_end]);
+        while ($row = $stmt_check->fetch()) {
+            $existing_slots[$row['slot_datetime']] = true;
+        }
+
+        $to_insert = [];
+
         for ($i = 0; $i < $days_ahead; $i++) {
             $current_date = clone $today;
             $current_date->modify("+$i days");
@@ -55,19 +68,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     while ($start < $end) {
                         $slot_datetime = $start->format('Y-m-d H:i:s');
 
-                        // Check if slot exists
-                        $check = $pdo->prepare("SELECT id FROM appointment_slots WHERE doctor_id = ? AND slot_datetime = ?");
-                        $check->execute([$_SESSION['user_id'], $slot_datetime]);
-
-                        if (!$check->fetch()) {
-                            $insert = $pdo->prepare("INSERT INTO appointment_slots (doctor_id, slot_datetime) VALUES (?, ?)");
-                            $insert->execute([$_SESSION['user_id'], $slot_datetime]);
-                            $generated_count++;
+                        if (!isset($existing_slots[$slot_datetime])) {
+                            $to_insert[] = $slot_datetime;
                         }
 
                         $start->add($interval);
                     }
                 }
+            }
+        }
+
+        // Batch Insert with Transaction
+        if (!empty($to_insert)) {
+            $pdo->beginTransaction();
+            try {
+                $insert_stmt = $pdo->prepare("INSERT INTO appointment_slots (doctor_id, slot_datetime) VALUES (?, ?)");
+                foreach ($to_insert as $slot_dt) {
+                    $insert_stmt->execute([$_SESSION['user_id'], $slot_dt]);
+                    $generated_count++;
+                }
+                $pdo->commit();
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                throw $e; // Re-throw to be caught by outer catch block
             }
         }
         setFlashMessage('success', "Generated $generated_count slots for the next 30 days!", 'success');
