@@ -22,6 +22,10 @@ try {
 
 // Handle Profile Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        die("CSRF validation failed.");
+    }
+
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $phone = trim($_POST['phone']);
@@ -64,6 +68,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Handle Password Change
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'change_password') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        die("CSRF validation failed.");
+    }
+
     $current_password = $_POST['current_password'];
     $new_password = $_POST['new_password'];
     $confirm_password = $_POST['confirm_password'];
@@ -120,6 +128,7 @@ require_once 'includes/header.php';
                 </div>
                 <div class="card-body">
                     <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                         <input type="hidden" name="action" value="update_profile">
 
                         <div class="mb-3">
@@ -162,6 +171,7 @@ require_once 'includes/header.php';
                 </div>
                 <div class="card-body">
                     <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?php echo generate_csrf_token(); ?>">
                         <input type="hidden" name="action" value="change_password">
 
                         <div class="mb-3">
