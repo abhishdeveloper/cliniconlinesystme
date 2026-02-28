@@ -105,15 +105,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $pdo->commit();
 
                 // 4. Send Notifications
-                // Get Doctor Email/Phone
-                $doc_stmt = $pdo->prepare("SELECT email, phone, name FROM users WHERE id = ?");
-                $doc_stmt->execute([$doctor_id]);
-                $doctor = $doc_stmt->fetch();
+                // Get Doctor and Patient Info in a single query
+                // ⚡ Bolt: Batch database query for users to avoid multiple round-trips
+                $users_stmt = $pdo->prepare("SELECT id, email, phone, name FROM users WHERE id IN (?, ?)");
+                $users_stmt->execute([$doctor_id, $_SESSION['user_id']]);
+                $users = $users_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // Get Patient Email/Phone (Current User)
-                $pat_stmt = $pdo->prepare("SELECT email, phone, name FROM users WHERE id = ?");
-                $pat_stmt->execute([$_SESSION['user_id']]);
-                $patient = $pat_stmt->fetch();
+                $doctor = null;
+                $patient = null;
+                foreach ($users as $u) {
+                    if ($u['id'] == $doctor_id) $doctor = $u;
+                    if ($u['id'] == $_SESSION['user_id']) $patient = $u;
+                }
 
                 $appt_time = date('F j, Y g:i A', strtotime($slot['slot_datetime']));
 
