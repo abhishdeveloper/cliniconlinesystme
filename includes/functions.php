@@ -13,6 +13,29 @@ function escape($string) {
 }
 
 /**
+ * Generates a CSRF token and stores it in the session.
+ * @return string
+ */
+function generate_csrf_token() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Verifies a CSRF token from the POST request.
+ * @param string $token
+ * @return bool
+ */
+function verify_csrf_token($token) {
+    if (isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token)) {
+        return true;
+    }
+    return false;
+}
+
+/**
  * Checks if a user is logged in.
  * Optionally checks for a specific role.
  * @param string|null $role
