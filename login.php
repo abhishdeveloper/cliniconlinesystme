@@ -50,7 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } catch (PDOException $e) {
             // Log error in production, show generic message
-            $error = "System error: " . $e->getMessage();
+            error_log("Login error for email " . $email . ": " . $e->getMessage());
+            $error = "System error occurred. Please try again later.";
         }
     }
 }
