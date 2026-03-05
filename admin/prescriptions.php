@@ -69,7 +69,8 @@ require_once '../includes/header.php';
                                 echo "<tr><td colspan='6' class='text-center py-4 text-muted'>No prescriptions found.</td></tr>";
                             }
                         } catch (PDOException $e) {
-                            echo "<tr><td colspan='6' class='text-danger'>Error: " . $e->getMessage() . "</td></tr>";
+                            error_log("Error: " . $e->getMessage());
+                            echo "<tr><td colspan='6' class='text-danger'>An unexpected error occurred. Please try again later.</td></tr>";
                         }
                         ?>
                     </tbody>
