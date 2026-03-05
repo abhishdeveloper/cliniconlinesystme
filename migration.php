@@ -25,6 +25,7 @@ try {
         }
     }
 } catch (PDOException $e) {
-    echo "Error: " . $e->getMessage() . "\n";
+    error_log("Error: " . $e->getMessage());
+    echo "An unexpected error occurred.\n";
 }
 ?>
