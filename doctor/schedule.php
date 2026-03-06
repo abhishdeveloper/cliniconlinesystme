@@ -39,7 +39,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $stmt->execute([$_SESSION['user_id']]);
         $templates = $stmt->fetchAll();
 
+        // ⚡ Bolt Optimization: Fetch all existing slots in one query to prevent N+1
         $today = new DateTime();
+        $start_date = clone $today;
+        $end_date = (clone $today)->modify("+$days_ahead days")->format('Y-m-d H:i:s');
+
+        $existing_stmt = $pdo->prepare("SELECT slot_datetime FROM appointment_slots WHERE doctor_id = ? AND slot_datetime >= ? AND slot_datetime <= ?");
+        $existing_stmt->execute([$_SESSION['user_id'], $start_date->format('Y-m-d 00:00:00'), $end_date]);
+        // O(1) existence checks hash map
+        $existing_slots = array_flip($existing_stmt->fetchAll(PDO::FETCH_COLUMN));
+
+        // ⚡ Bolt Optimization: Batch inserts in a transaction to prevent disk-sync overhead (crucial for SQLite)
+        $pdo->beginTransaction();
+        $insert = $pdo->prepare("INSERT INTO appointment_slots (doctor_id, slot_datetime) VALUES (?, ?)");
 
         for ($i = 0; $i < $days_ahead; $i++) {
             $current_date = clone $today;
@@ -55,13 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     while ($start < $end) {
                         $slot_datetime = $start->format('Y-m-d H:i:s');
 
-                        // Check if slot exists
-                        $check = $pdo->prepare("SELECT id FROM appointment_slots WHERE doctor_id = ? AND slot_datetime = ?");
-                        $check->execute([$_SESSION['user_id'], $slot_datetime]);
-
-                        if (!$check->fetch()) {
-                            $insert = $pdo->prepare("INSERT INTO appointment_slots (doctor_id, slot_datetime) VALUES (?, ?)");
+                        // ⚡ Bolt Optimization: O(1) memory check instead of DB SELECT
+                        if (!isset($existing_slots[$slot_datetime])) {
                             $insert->execute([$_SESSION['user_id'], $slot_datetime]);
+                            $existing_slots[$slot_datetime] = true; // Mark as added to prevent duplicates within same run
                             $generated_count++;
                         }
 
@@ -70,10 +79,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 }
             }
         }
+        $pdo->commit();
         setFlashMessage('success', "Generated $generated_count slots for the next 30 days!", 'success');
         redirect('schedule.php');
 
     } catch (PDOException $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         $error = "Error generating slots: " . $e->getMessage();
     }
 }
