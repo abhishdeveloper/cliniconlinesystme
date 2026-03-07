@@ -24,7 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         setFlashMessage('success', "Schedule added for $day!", 'success');
         redirect('schedule.php');
     } catch (PDOException $e) {
-        $error = "Error adding schedule: " . $e->getMessage();
+        error_log("Database error: " . $e->getMessage());
+        $error = "A database error occurred. Please try again later.";
     }
 }
 
@@ -74,7 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         redirect('schedule.php');
 
     } catch (PDOException $e) {
-        $error = "Error generating slots: " . $e->getMessage();
+        error_log("Database error: " . $e->getMessage());
+        $error = "A database error occurred. Please try again later.";
     }
 }
 
