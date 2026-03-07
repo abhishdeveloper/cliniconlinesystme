@@ -82,7 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('dashboard.php');
 
         } catch (PDOException $e) {
-            $error = "Error saving prescription: " . $e->getMessage();
+            error_log("Database error: " . $e->getMessage());
+            $error = "A database error occurred. Please try again later.";
         }
     }
 }
