@@ -39,11 +39,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $stmt->execute([$_SESSION['user_id']]);
         $templates = $stmt->fetchAll();
 
+        // ⚡ Bolt: Fetch existing slots in a single query to prevent N+1 checks
+        // Use beginning of the day to ensure we catch all potential slots generated today, even past ones
+        $today_start = date('Y-m-d 00:00:00');
+        $existing_slots_stmt = $pdo->prepare("SELECT slot_datetime FROM appointment_slots WHERE doctor_id = ? AND slot_datetime >= ?");
+        $existing_slots_stmt->execute([$_SESSION['user_id'], $today_start]);
+        $existing_slots = array_flip($existing_slots_stmt->fetchAll(PDO::FETCH_COLUMN)); // O(1) hash map lookup
+
         $today = new DateTime();
+        $slots_to_insert = [];
 
         for ($i = 0; $i < $days_ahead; $i++) {
-            $current_date = clone $today;
-            $current_date->modify("+$i days");
+            // (clone $obj)->method() to safely mutate without affecting original object
+            $current_date = (clone $today)->modify("+$i days");
             $day_name = $current_date->format('l'); // e.g., "Monday"
 
             foreach ($templates as $template) {
@@ -55,14 +63,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     while ($start < $end) {
                         $slot_datetime = $start->format('Y-m-d H:i:s');
 
-                        // Check if slot exists
-                        $check = $pdo->prepare("SELECT id FROM appointment_slots WHERE doctor_id = ? AND slot_datetime = ?");
-                        $check->execute([$_SESSION['user_id'], $slot_datetime]);
-
-                        if (!$check->fetch()) {
-                            $insert = $pdo->prepare("INSERT INTO appointment_slots (doctor_id, slot_datetime) VALUES (?, ?)");
-                            $insert->execute([$_SESSION['user_id'], $slot_datetime]);
-                            $generated_count++;
+                        // ⚡ Bolt: Use O(1) hash map lookup instead of N+1 database queries
+                        if (!isset($existing_slots[$slot_datetime])) {
+                            $slots_to_insert[] = $slot_datetime;
+                            // Add to hash map to prevent intra-run duplicates from overlapping templates
+                            $existing_slots[$slot_datetime] = true;
                         }
 
                         $start->add($interval);
@@ -70,10 +75,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 }
             }
         }
+
+        // ⚡ Bolt: Batch insert in a single transaction to eliminate disk sync I/O overhead
+        if (!empty($slots_to_insert)) {
+            $pdo->beginTransaction();
+            $insert = $pdo->prepare("INSERT INTO appointment_slots (doctor_id, slot_datetime) VALUES (?, ?)");
+            foreach ($slots_to_insert as $slot) {
+                $insert->execute([$_SESSION['user_id'], $slot]);
+                $generated_count++;
+            }
+            $pdo->commit();
+        }
+
         setFlashMessage('success', "Generated $generated_count slots for the next 30 days!", 'success');
         redirect('schedule.php');
 
     } catch (PDOException $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         $error = "Error generating slots: " . $e->getMessage();
     }
 }
@@ -169,8 +189,10 @@ require_once '../includes/header.php';
         <div class="card-body">
              <div class="row">
                 <?php
-                $stmt = $pdo->prepare("SELECT slot_datetime, is_booked FROM appointment_slots WHERE doctor_id = ? AND slot_datetime >= NOW() ORDER BY slot_datetime LIMIT 20");
-                $stmt->execute([$_SESSION['user_id']]);
+                // Use date() instead of NOW() for cross-database compatibility (SQLite/MySQL)
+                $now = date('Y-m-d H:i:s');
+                $stmt = $pdo->prepare("SELECT slot_datetime, is_booked FROM appointment_slots WHERE doctor_id = ? AND slot_datetime >= ? ORDER BY slot_datetime LIMIT 20");
+                $stmt->execute([$_SESSION['user_id'], $now]);
                 $slots = $stmt->fetchAll();
 
                 if (count($slots) > 0) {
