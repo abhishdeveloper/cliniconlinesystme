@@ -1,0 +1,3 @@
+## 2024-05-18 - [Optimizing Database Inserts in SQLite]
+**Learning:** During mass slot generation in `doctor/schedule.php`, using a loop with an N+1 `SELECT` query followed by a non-transactional `INSERT` resulted in an extreme disk sync I/O bottleneck. This was exacerbated by SQLite, where every un-transactional insert triggers an `fsync`.
+**Action:** When performing bulk queries, always use a single `SELECT` to fetch an existing dataset into memory as a hash map (`isset` check) and wrap mass inserts in `$pdo->beginTransaction()` and `$pdo->commit()`. This drastically improves database I/O and query latency.
