@@ -1,0 +1,3 @@
+## 2024-05-24 - Bulk Insert Transaction Overhead in SQLite
+**Learning:** SQLite suffers from severe disk-sync I/O overhead during un-transactional bulk inserts. Executing many individual `INSERT` queries in a loop can take over 1 second, whereas wrapping them in a single transaction (`beginTransaction()` and `commit()`) and using an in-memory O(1) existence check instead of querying existing records per insert reduces the time to mere milliseconds.
+**Action:** Always wrap bulk database inserts in a single transaction and replace N+1 exist queries with upfront map loading when dealing with mass record generation.
