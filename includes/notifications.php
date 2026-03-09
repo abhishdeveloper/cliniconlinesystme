@@ -8,13 +8,13 @@
  * @return bool True on success, False on failure
  */
 function sendSMS($to, $body) {
-    // Configuration - Set these in production or use environment variables
-    $sid = 'YOUR_TWILIO_SID';
-    $token = 'YOUR_TWILIO_TOKEN';
-    $from = 'YOUR_TWILIO_PHONE';
+    // Configuration - Load from environment variables (no hardcoded secrets)
+    $sid = getenv('TWILIO_SID');
+    $token = getenv('TWILIO_TOKEN');
+    $from = getenv('TWILIO_PHONE');
 
-    // In development/test mode, just log it.
-    if ($sid === 'YOUR_TWILIO_SID') {
+    // In development/test mode, just log it if credentials are not set
+    if (!$sid || !$token || !$from) {
         error_log("[MOCK SMS] To: $to | Body: $body");
         return true;
     }
@@ -55,13 +55,13 @@ function sendSMS($to, $body) {
  * @return bool True on success
  */
 function sendEmail($to, $subject, $message) {
-    // Configuration
-    $smtp_host = 'smtp.example.com';
-    $smtp_port = 587;
-    $smtp_user = 'user@example.com';
-    $smtp_pass = 'password';
-    $from_email = 'noreply@clinic.com';
-    $from_name = 'Clinic System';
+    // Configuration - Load from environment variables (no hardcoded secrets)
+    $smtp_host = getenv('SMTP_HOST');
+    $smtp_port = getenv('SMTP_PORT');
+    $smtp_user = getenv('SMTP_USER');
+    $smtp_pass = getenv('SMTP_PASS');
+    $from_email = getenv('SMTP_FROM_EMAIL') ?: 'noreply@clinic.com';
+    $from_name = getenv('SMTP_FROM_NAME') ?: 'Clinic System';
 
     // Header Injection Protection
     if (preg_match("/[\r\n]/", $to) || preg_match("/[\r\n]/", $subject)) {
@@ -69,8 +69,8 @@ function sendEmail($to, $subject, $message) {
         return false;
     }
 
-    // In development, fall back to PHP mail() or log
-    if ($smtp_host === 'smtp.example.com') {
+    // In development, fall back to PHP mail() or log if credentials are not set
+    if (!$smtp_host || !$smtp_port || !$smtp_user || !$smtp_pass) {
         error_log("[MOCK EMAIL] To: $to | Subject: $subject | Body: $message");
         return true;
         // return mail($to, $subject, $message, "From: $from_email"); // Use standard mail() if configured
