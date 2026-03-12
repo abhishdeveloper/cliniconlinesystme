@@ -17,40 +17,49 @@ if (isLoggedIn()) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
-
-    if (empty($email) || empty($password)) {
-        $error = "Please fill in all fields.";
+    if (!isset($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
+        $error = "Invalid CSRF token.";
     } else {
-        try {
-            // Prepare statement to prevent SQL injection
-            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
-            $stmt->execute([$email]);
-            $user = $stmt->fetch();
+        $email = trim($_POST['email']);
+        $password = $_POST['password'];
 
-            if ($user && password_verify($password, $user['password'])) {
-                // Login success
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_name'] = $user['name'];
-                $_SESSION['role'] = $user['role'];
+        if (empty($email) || empty($password)) {
+            $error = "Please fill in all fields.";
+        } else {
+            try {
+                // Prepare statement to prevent SQL injection
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+                $stmt->execute([$email]);
+                $user = $stmt->fetch();
 
-                setFlashMessage('success', "Welcome back, " . htmlspecialchars($user['name']) . "!", 'success');
+                if ($user && password_verify($password, $user['password'])) {
+                    // Regenerate session ID and token to prevent session fixation
+                    session_regenerate_id(true);
+                    unset($_SESSION['csrf_token']);
 
-                // Redirect based on role
-                if ($user['role'] === 'admin') {
-                    redirect('admin/dashboard.php');
-                } elseif ($user['role'] === 'doctor') {
-                    redirect('doctor/dashboard.php');
+                    // Login success
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['user_name'] = $user['name'];
+                    $_SESSION['role'] = $user['role'];
+
+                    setFlashMessage('success', "Welcome back, " . htmlspecialchars($user['name']) . "!", 'success');
+
+                    // Redirect based on role
+                    if ($user['role'] === 'admin') {
+                        redirect('admin/dashboard.php');
+                    } elseif ($user['role'] === 'doctor') {
+                        redirect('doctor/dashboard.php');
+                    } else {
+                        redirect('patient/dashboard.php');
+                    }
                 } else {
-                    redirect('patient/dashboard.php');
+                    $error = "Invalid email or password.";
                 }
-            } else {
-                $error = "Invalid email or password.";
+            } catch (PDOException $e) {
+                // Log error in production, show generic message
+                error_log("Login error: " . $e->getMessage());
+                $error = "An error occurred during login. Please try again.";
             }
-        } catch (PDOException $e) {
-            // Log error in production, show generic message
-            $error = "System error: " . $e->getMessage();
         }
     }
 }
@@ -70,6 +79,7 @@ require_once 'includes/header.php';
                     <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
                 <?php endif; ?>
                 <form method="POST" action="">
+                    <?php echo csrf_field(); ?>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address</label>
                         <input type="email" class="form-control" id="email" name="email" required>
