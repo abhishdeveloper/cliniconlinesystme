@@ -7,7 +7,8 @@ if (!isLoggedIn()) {
 }
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    die("Invalid prescription ID.");
+    setFlashMessage('danger', "Invalid prescription ID.");
+    redirect('/index.php');
 }
 
 $prescription_id = $_GET['id'];
@@ -28,15 +29,18 @@ $stmt->execute([$prescription_id]);
 $rx = $stmt->fetch();
 
 if (!$rx) {
-    die("Prescription not found.");
+    setFlashMessage('danger', "Prescription not found.");
+    redirect('/index.php');
 }
 
 // Access Control
 if ($_SESSION['role'] === 'patient' && $_SESSION['user_id'] != $rx['patient_id']) {
-    die("Access Denied.");
+    setFlashMessage('danger', "Access Denied.");
+    redirect('/index.php');
 }
 if ($_SESSION['role'] === 'doctor' && $_SESSION['user_id'] != $rx['doctor_id']) {
-    die("Access Denied.");
+    setFlashMessage('danger', "Access Denied.");
+    redirect('/index.php');
 }
 // Admin can view all
 
