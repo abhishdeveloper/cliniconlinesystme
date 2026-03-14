@@ -13,14 +13,17 @@ $success = '';
 
 // Handle Add Medicine
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_medicine') {
-    $name = trim($_POST['name']);
-    $type = trim($_POST['type']);
-    $default_dosage = trim($_POST['default_dosage']);
-    $description = trim($_POST['description']);
-
-    if (empty($name)) {
-        $error = "Medicine name is required.";
+    if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
+        $error = "Invalid request token.";
     } else {
+        $name = trim($_POST['name']);
+        $type = trim($_POST['type']);
+        $default_dosage = trim($_POST['default_dosage']);
+        $description = trim($_POST['description']);
+
+        if (empty($name)) {
+            $error = "Medicine name is required.";
+        } else {
         try {
             $stmt = $pdo->prepare("INSERT INTO medicines (name, type, default_dosage, description) VALUES (?, ?, ?, ?)");
             if ($stmt->execute([$name, $type, $default_dosage, $description])) {
@@ -29,21 +32,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             } else {
                 $error = "Failed to add medicine.";
             }
-        } catch (PDOException $e) {
-            $error = "Database error: " . $e->getMessage();
+            } catch (PDOException $e) {
+                $error = "Database error: " . $e->getMessage();
+            }
         }
     }
 }
 
 // Handle Delete Medicine
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    try {
-        $stmt = $pdo->prepare("DELETE FROM medicines WHERE id = ?");
-        $stmt->execute([$_GET['delete']]);
-        setFlashMessage('success', "Medicine deleted successfully!", 'success');
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete_medicine') {
+    if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
+        setFlashMessage('danger', "Invalid request token.", 'danger');
         redirect('medicines.php');
-    } catch (PDOException $e) {
-        setFlashMessage('danger', "Error deleting medicine: " . $e->getMessage(), 'danger');
+    }
+
+    if (isset($_POST['id']) && is_numeric($_POST['id'])) {
+        try {
+            $stmt = $pdo->prepare("DELETE FROM medicines WHERE id = ?");
+            $stmt->execute([$_POST['id']]);
+            setFlashMessage('success', "Medicine deleted successfully!", 'success');
+            redirect('medicines.php');
+        } catch (PDOException $e) {
+            setFlashMessage('danger', "Error deleting medicine: " . $e->getMessage(), 'danger');
+        }
     }
 }
 
@@ -69,6 +80,7 @@ require_once '../includes/header.php';
                     <?php endif; ?>
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="add_medicine">
+                        <input type="hidden" name="csrf_token" value="<?php echo generateCsrfToken(); ?>">
                         <div class="mb-3">
                             <label class="form-label">Medicine Name</label>
                             <input type="text" name="name" class="form-control" required placeholder="e.g., Ashwagandha">
@@ -146,7 +158,12 @@ require_once '../includes/header.php';
                                         echo "<td><span class='badge bg-secondary'>" . htmlspecialchars($med['type']) . "</span></td>";
                                         echo "<td>" . htmlspecialchars($med['default_dosage']) . "</td>";
                                         echo "<td>
-                                                <a href='?delete={$med['id']}' class='btn btn-sm btn-danger' onclick='return confirm(\"Are you sure?\")'><i class='fas fa-trash'></i></a>
+                                                <form method='POST' action='' style='display:inline;' onsubmit='return confirm(\"Are you sure?\");'>
+                                                    <input type='hidden' name='action' value='delete_medicine'>
+                                                    <input type='hidden' name='id' value='{$med['id']}'>
+                                                    <input type='hidden' name='csrf_token' value='" . generateCsrfToken() . "'>
+                                                    <button type='submit' class='btn btn-sm btn-danger'><i class='fas fa-trash'></i></button>
+                                                </form>
                                               </td>";
                                         echo "</tr>";
                                     }
