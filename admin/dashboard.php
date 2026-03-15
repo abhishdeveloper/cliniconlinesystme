@@ -13,6 +13,11 @@ $success = '';
 
 // Handle Add User
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_user') {
+    if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
+        setFlashMessage('danger', "Invalid CSRF token.", 'danger');
+        redirect('dashboard.php');
+    }
+
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
     $password = $_POST['password'];
@@ -89,6 +94,7 @@ require_once '../includes/header.php';
                     <?php endif; ?>
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="add_user">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(generateCsrfToken()); ?>">
                         <div class="mb-3">
                             <label class="form-label">Name</label>
                             <input type="text" name="name" class="form-control" required>
