@@ -261,6 +261,7 @@ require_once '../includes/header.php';
                                         if ($appt['status'] === 'pending' || $appt['status'] === 'confirmed') {
                                             echo "<form method='POST' action='' style='display:inline;' onsubmit='return confirm(\"Are you sure you want to cancel this appointment?\");'>
                                                     <input type='hidden' name='action' value='cancel_appointment'>
+                                                    <input type='hidden' name='csrf_token' value='" . escape(generateCsrfToken()) . "'>
                                                     <input type='hidden' name='appointment_id' value='{$appt['id']}'>
                                                     <button type='submit' class='btn btn-sm btn-danger' title='Cancel Appointment'><i class='fas fa-times'></i></button>
                                                   </form>";
