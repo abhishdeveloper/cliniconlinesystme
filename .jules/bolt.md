@@ -1,0 +1,3 @@
+## 2024-05-24 - [Optimize slot generation to prevent N+1 bottleneck]
+**Learning:** SQLite disk-sync overhead during unbatched inserts can be a severe bottleneck, particularly when looping and issuing a `SELECT` then `INSERT` sequentially (an N+1 query problem). This is particularly noticeable in development environments utilizing SQLite databases if bulk inserts are not batched.
+**Action:** When performing bulk insertions, fetch existing records upfront with a single `SELECT` query into an in-memory hash map for O(1) existence checks. Combine this with wrapping the inserts within a single database transaction (`$pdo->beginTransaction()` and `$pdo->commit()`) to avoid individual disk synchronization overhead.
