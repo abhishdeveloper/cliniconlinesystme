@@ -13,6 +13,10 @@ $success = '';
 
 // Handle Add Medicine
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_medicine') {
+    if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
+        setFlashMessage('danger', 'Invalid CSRF token.', 'danger');
+        redirect('medicines.php');
+    }
     $name = trim($_POST['name']);
     $type = trim($_POST['type']);
     $default_dosage = trim($_POST['default_dosage']);
@@ -36,14 +40,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 // Handle Delete Medicine
-if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    try {
-        $stmt = $pdo->prepare("DELETE FROM medicines WHERE id = ?");
-        $stmt->execute([$_GET['delete']]);
-        setFlashMessage('success', "Medicine deleted successfully!", 'success');
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete_medicine') {
+    if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
+        setFlashMessage('danger', 'Invalid CSRF token.', 'danger');
         redirect('medicines.php');
-    } catch (PDOException $e) {
-        setFlashMessage('danger', "Error deleting medicine: " . $e->getMessage(), 'danger');
+    }
+    if (isset($_POST['medicine_id']) && is_numeric($_POST['medicine_id'])) {
+        try {
+            $stmt = $pdo->prepare("DELETE FROM medicines WHERE id = ?");
+            $stmt->execute([$_POST['medicine_id']]);
+            setFlashMessage('success', "Medicine deleted successfully!", 'success');
+            redirect('medicines.php');
+        } catch (PDOException $e) {
+            setFlashMessage('danger', "Error deleting medicine: " . $e->getMessage(), 'danger');
+        }
     }
 }
 
@@ -68,6 +78,7 @@ require_once '../includes/header.php';
                         <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
                     <?php endif; ?>
                     <form method="POST" action="">
+                        <input type="hidden" name="csrf_token" value="<?php echo generateCsrfToken(); ?>">
                         <input type="hidden" name="action" value="add_medicine">
                         <div class="mb-3">
                             <label class="form-label">Medicine Name</label>
@@ -146,7 +157,12 @@ require_once '../includes/header.php';
                                         echo "<td><span class='badge bg-secondary'>" . htmlspecialchars($med['type']) . "</span></td>";
                                         echo "<td>" . htmlspecialchars($med['default_dosage']) . "</td>";
                                         echo "<td>
-                                                <a href='?delete={$med['id']}' class='btn btn-sm btn-danger' onclick='return confirm(\"Are you sure?\")'><i class='fas fa-trash'></i></a>
+                                                <form method='POST' action='' style='display:inline;'>
+                                                    <input type='hidden' name='csrf_token' value='" . generateCsrfToken() . "'>
+                                                    <input type='hidden' name='action' value='delete_medicine'>
+                                                    <input type='hidden' name='medicine_id' value='{$med['id']}'>
+                                                    <button type='submit' class='btn btn-sm btn-danger' onclick='return confirm(\"Are you sure?\")'><i class='fas fa-trash'></i></button>
+                                                </form>
                                               </td>";
                                         echo "</tr>";
                                     }
