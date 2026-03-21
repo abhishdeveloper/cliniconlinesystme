@@ -1,0 +1,3 @@
+## 2024-05-24 - [N+1 Query Resolution via In-Memory Hash Map]
+**Learning:** During slot generation, executing a `SELECT` query within a nested loop to check for existing records causes severe N+1 query bottlenecks and slows down database performance. In this codebase's architecture, bulk operations (like generating 30 days of slots) exacerbate the issue. Wrapping multiple `INSERT`s in a single transaction significantly speeds up database write speeds.
+**Action:** Next time you need to check for existing records before inserting multiple items, fetch all existing records for the relevant period into an array hash map (`array_flip()`) beforehand for O(1) local lookups, and always wrap bulk inserts in a database transaction (`beginTransaction()` and `commit()`).
