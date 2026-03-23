@@ -1,0 +1,3 @@
+## 2024-03-24 - N+1 query and SQLite disk I/O in bulk inserts
+**Learning:** During slot generation in `doctor/schedule.php`, using a `SELECT` statement and an `INSERT` statement inside a loop (N+1 queries) combined with the lack of database transactions (`$pdo->beginTransaction()`) leads to significant overhead. This is especially problematic in SQLite where every implicit transaction forces a disk sync (I/O bottleneck).
+**Action:** When performing bulk conditional inserts, fetch existing records in a single query outside the loop, build an O(1) lookup hash map using `array_flip(PDO::FETCH_COLUMN)`, wrap the inserts in a single transaction, and explicitly add new items to the hash map to prevent duplicates during the same generation run.
