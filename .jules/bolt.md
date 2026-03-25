@@ -1,0 +1,4 @@
+
+## 2025-03-25 - [Optimize N+1 queries during slot generation in doctor/schedule.php]
+**Learning:** During slot generation, multiple `SELECT` calls were executed inside loops (N+1 query problem) to check if a slot exists. This combined with individual `INSERT` statements inside the same loops resulted in heavy disk I/O, particularly noticeable in SQLite because each `INSERT` creates an implicit transaction.
+**Action:** Replace the in-loop `SELECT` logic with a single pre-fetch query creating an in-memory hash map for `appointment_slots` using `array_flip`. Wrap all insertions in a single `$pdo->beginTransaction()` and `$pdo->commit()` to avoid severe disk sync I/O overhead. Add newly created slots to the hash map right after insertion to prevent duplicating slots within overlapping generation templates.
