@@ -1,0 +1,4 @@
+## 2024-05-18 - Fix Information Exposure in Authentication Flow
+**Vulnerability:** The application was catching `PDOException` objects and exposing the raw database error messages (`$e->getMessage()`) directly to the user in `login.php`, `register.php`, and `profile.php`. This could leak sensitive database schema information, query structure, or underlying errors, aiding an attacker in finding SQL injection points. Some errors were even using `die()`, causing a hard crash and potential state issues.
+**Learning:** Raw exception strings should never be exposed to the end user, particularly in sensitive areas like authentication and profile management.
+**Prevention:** Always log the verbose error internally using `error_log()` for debugging, and display a polite, generic error message (e.g., "System error. Please try again later.") to the user. Replace `die()` with a graceful exit, such as `setFlashMessage()` followed by a `redirect()`.

@@ -17,7 +17,9 @@ try {
     $stmt->execute([$user_id]);
     $user = $stmt->fetch();
 } catch (PDOException $e) {
-    die("Error loading profile: " . $e->getMessage());
+    error_log("Error loading profile for user $user_id: " . $e->getMessage());
+    setFlashMessage('danger', "System error. Please try again later.", 'danger');
+    redirect('index.php');
 }
 
 // Handle Profile Update
@@ -57,7 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $user = $stmt->fetch();
             }
         } catch (PDOException $e) {
-            $error = "Database error: " . $e->getMessage();
+            error_log("Database error updating profile for user $user_id: " . $e->getMessage());
+            $error = "System error updating profile. Please try again later.";
         }
     }
 }
@@ -83,7 +86,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $stmt->execute([$hashed_password, $user_id]);
                 $success = "Password changed successfully!";
             } catch (PDOException $e) {
-                $error = "Error changing password: " . $e->getMessage();
+                error_log("Database error changing password for user $user_id: " . $e->getMessage());
+                $error = "System error changing password. Please try again later.";
             }
         } else {
             $error = "Incorrect current password.";
