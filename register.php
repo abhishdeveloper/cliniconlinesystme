@@ -45,7 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         } catch (PDOException $e) {
-            $error = "Database error: " . $e->getMessage();
+            error_log("Database error during registration: " . $e->getMessage());
+            $error = "Registration failed due to a system error. Please try again later.";
         }
     }
 }
