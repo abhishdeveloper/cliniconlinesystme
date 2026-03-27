@@ -39,7 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Process Medicines
     $medicines = [];
     if (isset($_POST['med_name']) && is_array($_POST['med_name'])) {
-        for ($i = 0; $i < count($_POST['med_name']); $i++) {
+        // Bolt: Hoist count() to prevent redundant function calls per iteration
+        $med_count = count($_POST['med_name']);
+        for ($i = 0; $i < $med_count; $i++) {
             if (!empty($_POST['med_name'][$i])) {
                 $medicines[] = [
                     'name' => $_POST['med_name'][$i],
