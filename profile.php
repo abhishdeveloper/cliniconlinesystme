@@ -17,7 +17,9 @@ try {
     $stmt->execute([$user_id]);
     $user = $stmt->fetch();
 } catch (PDOException $e) {
-    die("Error loading profile: " . $e->getMessage());
+    error_log("Profile load error for user $user_id: " . $e->getMessage());
+    setFlashMessage('error', 'An error occurred while loading your profile.', 'danger');
+    redirect('index.php');
 }
 
 // Handle Profile Update

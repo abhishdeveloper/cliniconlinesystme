@@ -1,0 +1,4 @@
+## 2024-05-30 - Fix Information Leakage via die() Exceptions
+**Vulnerability:** Core application files (`profile.php`, `config/database.php`) were exposing raw database exceptions (`PDOException`) directly to the end user via `die($e->getMessage())`. This is a CWE-209 vulnerability (Generation of Error Message Containing Sensitive Information) that can leak database structure, query details, or file paths.
+**Learning:** Hard crashes like `die()` are often used for quick error handling during development but become critical information disclosure risks in production if not replaced with secure logging and generic user feedback mechanisms.
+**Prevention:** Always catch and log raw exceptions internally via `error_log()` and present the user with a generic failure message (e.g., via a safe `die("Database connection failed.")` for early config errors, or a flash message and redirect for controller-level errors).
