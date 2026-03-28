@@ -1,0 +1,3 @@
+## 2026-03-28 - Prevent N+1 queries during appointment slot generation
+**Learning:** Generating daily appointment slots inside a nested loop with individual `SELECT` existence checks and `INSERT` operations creates an N+1 query bottleneck. Each `INSERT` triggering disk-sync I/O overhead heavily penalizes performance, especially with SQLite.
+**Action:** Fetch existing slots upfront into a PHP hash map using `array_flip(PDO::FETCH_COLUMN)` for O(1) existence checks. Wrap the entire generation loop in a single database transaction (`$pdo->beginTransaction()` / `$pdo->commit()`) and prepare the `INSERT` statement only once outside the loop.
