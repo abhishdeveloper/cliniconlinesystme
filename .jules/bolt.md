@@ -1,0 +1,4 @@
+
+## 2024-05-19 - [Fix N+1 queries in schedule generation]
+**Learning:** Preventing N+1 queries during data generation within a double-nested loop can be solved efficiently by fetching existing records in a single initial query and caching them in an O(1) PHP hash map via `array_flip(PDO::FETCH_COLUMN)`. Furthermore, executing thousands of `INSERT`s individually inside a loop causes severe I/O bottlenecking on the SQLite database unless explicitly wrapped in a database transaction (`$pdo->beginTransaction()`/`$pdo->commit()`), and preparing the SQL `INSERT` statement just once before the loop reduces processing overhead.
+**Action:** When performing bulk insertions or generations within loops, prefer bulk fetching existing records into an O(1) hash map to avoid sequential exist-checks. Always wrap bulk writes in transactions and prepare statements outside the loop for maximal performance.
