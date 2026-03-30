@@ -1,0 +1,4 @@
+## 2024-05-30 - Session Fixation Vulnerability in Login
+**Vulnerability:** The login process did not regenerate the session ID upon successful authentication, making the application vulnerable to session fixation attacks. An attacker could potentially set a known session ID for a user, wait for them to log in, and then hijack their authenticated session.
+**Learning:** This existed because the standard practice of calling `session_regenerate_id(true)` upon privilege escalation was omitted during the initial implementation of the login script.
+**Prevention:** Always ensure `session_regenerate_id(true)` is called immediately after a user successfully authenticates and before setting any user-specific data in the `$_SESSION` superglobal. This ensures the old session ID (which might be compromised) is destroyed and a new, secure ID is issued.
